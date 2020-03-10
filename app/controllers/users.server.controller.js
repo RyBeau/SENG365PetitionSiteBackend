@@ -26,7 +26,7 @@ exports.register = async function (req, res) {
         const name = req.body.name;
         const email = req.body.email;
         const password = req.body.password;
-        if (password != null && await checkEmail(email)) {
+        if (password != null && await checkEmail(email) && name != null) {
             const result = await User.insert(name, email, password, req.body.city, req.body.country);
             res.status(201)
                 .send({"userId":result.insertId});
