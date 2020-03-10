@@ -18,3 +18,17 @@ exports.insert = async function (name, email, password, city, country) {
     const [result, _] = await connection.query(q, [values]);
     return result;
 };
+
+exports.getPass = async function (email) {
+    const connection = await db.getPool().getConnection();
+    let q = "select user_id, password from User where email = (?)";
+    const [result, _] = await connection.query(q, email);
+    return result;
+}
+
+exports.setAuth = async function (email, token) {
+    const connection = await db.getPool().getConnection();
+    const values = [token, email];
+    const q = "UPDATE User SET auth_token = (?) where email = (?)";
+    const [result, _] = await connection.query(q, values);
+};
