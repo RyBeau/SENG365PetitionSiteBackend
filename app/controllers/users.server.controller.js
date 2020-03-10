@@ -2,7 +2,7 @@ const User = require('../models/users.server.model');
 
 async function checkEmail(email){
     let result = false;
-    if (email.contains("@") && await User.checkEmail(email)){
+    if (email.includes("@") && await User.checkEmail(email)){
         result = true;
     }
     return result;
@@ -13,8 +13,10 @@ exports.register = async function (req, res) {
         const name = req.body.name;
         const email = req.body.email;
         const password = req.body.password;
-        if (password === null || await checkEmail(email)) {
-            User.insert(name, email, password, req.body.city, req.body.country);
+        if (password != null && await checkEmail(email)) {
+            result = await User.insert(name, email, password, req.body.city, req.body.country);
+            res.status(201)
+                .send({"userID":result.insertId});
         } else {
             throw("Bad Request");
         }
@@ -26,7 +28,7 @@ exports.register = async function (req, res) {
                 break;
             default:
                 res.status(500)
-                    .send("Internal Server Error");
+                    .send(`Internal Server Error: ${err}`);
                 break;
         }
     }
