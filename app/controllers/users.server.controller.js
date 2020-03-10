@@ -51,7 +51,7 @@ exports.login = async function (req, res) {
                 let token = Math.random(32).toString().substring(7);
                 await User.setAuth(email, token);
                 res.status(200)
-                    .send({"user_id": user_id, "token":token});
+                    .send({"userId": user_id, "token":token});
         } else {
                 throw("Bad Request");
             }
