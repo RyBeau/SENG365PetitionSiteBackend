@@ -42,7 +42,7 @@ exports.login = async function (req, res) {
     try {
         const email = req.body.email;
         const password = req.body.password;
-        if (!checkEmail(email) || password === null) {throw("Bad Request")}
+        if (!await checkEmail(email) || password === null) {throw("Bad Request")}
         else {
             let queryResult = await User.getPass(email);
             const dbPassword = queryResult[0].password;
@@ -51,8 +51,7 @@ exports.login = async function (req, res) {
                 let token = Math.random(32).toString().substring(7);
                 await User.setAuth(email, token);
                 res.status(200)
-                    .body({"user_id": user_id, "token":token})
-                    .send();
+                    .send({"user_id": user_id, "token":token});
         } else {
                 throw("Bad Request");
             }
