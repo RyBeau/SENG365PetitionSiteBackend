@@ -1,8 +1,8 @@
 const users = require('../controllers/users.server.controller');
 
 module.exports = function (app) {
-    app.route('/users/register')
+    app.route('users/register')
         .post(users.register);
-    app.route('/users/login')
+    app.route('users/login')
         .post(users.login);
 };
