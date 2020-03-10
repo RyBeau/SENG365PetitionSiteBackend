@@ -42,7 +42,7 @@ exports.login = async function (req, res) {
     try {
         const email = req.body.email;
         const password = req.body.password;
-        if (!await checkEmail(email) || password === null) {throw("Bad Request")}
+        if (await User.checkEmail(email) || password === null) {throw("Bad Request")}
         else {
             let queryResult = await User.getPass(email);
             const dbPassword = queryResult[0].password;
