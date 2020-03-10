@@ -29,7 +29,7 @@ exports.register = async function (req, res) {
         if (password != null && await checkEmail(email)) {
             const result = await User.insert(name, email, password, req.body.city, req.body.country);
             res.status(201)
-                .send({"userID":result.insertId});
+                .send({"userId":result.insertId});
         } else {
             throw("Bad Request");
         }
