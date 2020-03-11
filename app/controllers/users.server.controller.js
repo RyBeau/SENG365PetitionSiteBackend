@@ -76,7 +76,7 @@ exports.login = async function (req, res) {
 exports.logout = async function (req, res) {
     try {
         const auth_token = req.header('X-Authorization');
-        if (auth_token === null){
+        if (auth_token === undefined){
             throw("Unauthorized");
         } else {
             const result = await User.removeAuth(auth_token);
@@ -101,7 +101,7 @@ exports.viewUser = async function (req, res) {
             throw("Not Found");
         } else {
             let responseBody = result[0];
-            if (req_auth_token != null){
+            if (req_auth_token != undefined){
                 const dbAuth_token = (await User.checkAuthUserId(user_id))[0].auth_token;
                 if (dbAuth_token != req_auth_token) {
                     delete responseBody.email;
@@ -122,7 +122,7 @@ exports.updateUser = async function (req, res) {
         const user_id = req.params.user_id;
         const auth_token = req.header("X-Authorization");
         if(Object.getOwnPropertyNames(req.body).length === 0) throw("Bad Request");
-        if (auth_token != null && auth_token === (await User.checkAuthUserId(user_id))[0].auth_token) {
+        if (auth_token != undefined && auth_token === (await User.checkAuthUserId(user_id))[0].auth_token) {
             const originalUser = (await User.getUser(user_id))[0];
             const oldPassword = (await User.getPass(originalUser.email))[0].password;
             const name = req.body.name === undefined ? originalUser.name: req.body.name;
