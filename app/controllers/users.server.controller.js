@@ -18,9 +18,14 @@ function errorOccured (err, res) {
             res.status(401)
                 .send(err);
             break;
+        case "Forbidden":
+            res.status(403)
+                .send(err);
+            break;
         case "Not Found":
             res.status(404)
                 .send(err);
+            break;
         default:
             res.status(500)
                 .send(`Internal Server Error: ${err}`);
@@ -98,7 +103,6 @@ exports.viewUser = async function (req, res) {
             let responseBody = result[0];
             if (req_auth_token != null){
                 const dbAuth_token = (await User.checkAuthUserId(user_id))[0].auth_token;
-                console.log(dbAuth_token);
                 if (dbAuth_token != req_auth_token) {
                     delete responseBody.email;
                 }
@@ -115,7 +119,40 @@ exports.viewUser = async function (req, res) {
 
 exports.updateUser = async function (req, res) {
     try {
-        throw("");
+        const user_id = req.params.user_id;
+        const auth_token = req.header("X-Authorization");
+        if(!req.body) throw("Bad Request");
+        if (auth_token != null && auth_token === (await User.checkAuthUserId(user_id))[0].auth_token) {
+            const originalUser = (await User.getUser(user_id))[0];
+            const oldPassword = (await User.getPass(originalUser.email))[0].password;
+            const name = req.body.name === undefined ? originalUser.name: req.body.name;
+            const city = req.body.city === undefined ? originalUser.city: req.body.city;
+            const country = req.body.country === undefined ? originalUser.country: req.body.country;
+            let email = req.body.email;
+            let password = req.body.password;
+            let currentPassword = req.body.currentPassword;
+            if (email != null){
+                if (!(await checkEmail(email)) && email != originalUser.email){
+                    throw("Forbidden");
+                }
+            } else {
+                email = originalUser.email;
+            }
+            if (password != null) {
+                if (currentPassword != oldPassword){
+                    throw("Forbidden");
+                }
+            } else if (req.hasOwnProperty('password')) {
+                throw("Forbidden");
+            } else {
+                    password = originalUser.password;
+                }
+            const result = await User.updateUser(name, email, password, city, country, user_id);
+            res.status(200)
+                .send("OK");
+        } else {
+            throw("Unauthorized")
+        }
     } catch (err) {
         errorOccured(err, res);
     }

@@ -48,8 +48,17 @@ exports.removeAuth = async function (auth_token) {
 };
 
 exports.getUser = async function (user_id) {
-    const connection = await db.getPool().getConnection();
+    const connection = await db.getPool()
     const q = "SELECT name, city, country, email from User where user_id = (?)";
     const [result,_] = await connection.query(q, user_id);
+    return result;
+};
+
+exports.updateUser = async function (name, email, password, city, country, user_id) {
+    const values = [name, email, password, city, country, user_id];
+    console.log(values);
+    const connection = await db.getPool();
+    const q = "UPDATE User SET name = (?), email = (?), password = (?), city = (?), country = (?) where user_id = (?)";
+    const [result, _] = await connection.query(q, values);
     return result;
 };
