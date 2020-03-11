@@ -90,14 +90,19 @@ exports.logout = async function (req, res) {
 exports.viewUser = async function (req, res) {
     try {
         const user_id = req.params.user_id;
-        const auth_token = req.header('X-Authorization');
+        const req_auth_token = req.header('X-Authorization');
         const result = await User.getUser(user_id);
         if (result.length === 0){
             throw("Not Found");
         } else {
             let responseBody = result[0];
-            const dbAuth_token = (await User.checkAuthUserId(user_id))[0].auth_token;
-            if (dbAuth_token != auth_token && auth_token != null){
+            if (req_auth_token != null){
+                const dbAuth_token = (await User.checkAuthUserId(user_id))[0].auth_token;
+                console.log(dbAuth_token);
+                if (dbAuth_token != req_auth_token) {
+                    delete responseBody.email;
+                }
+            } else {
                 delete responseBody.email;
             }
             res.status(200)
@@ -110,8 +115,8 @@ exports.viewUser = async function (req, res) {
 
 exports.updateUser = async function (req, res) {
     try {
-        console.log(1);
+        throw("");
     } catch (err) {
-        errorOccured(err);
+        errorOccured(err, res);
     }
 };
