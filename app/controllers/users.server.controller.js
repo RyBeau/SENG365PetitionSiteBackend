@@ -97,7 +97,7 @@ exports.viewUser = async function (req, res) {
         } else {
             let responseBody = result[0];
             const dbAuth_token = (await User.checkAuthUserId(user_id))[0].auth_token;
-            if (dbAuth_token != auth_token){
+            if (dbAuth_token != auth_token && auth_token != null){
                 delete responseBody.email;
             }
             res.status(200)
