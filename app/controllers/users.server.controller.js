@@ -12,12 +12,15 @@ function errorOccured (err, res) {
     switch (err) {
         case "Bad Request":
             res.status(400)
-                .send(`${err}`);
+                .send(err);
             break;
         case "Unauthorized":
             res.status(401)
-                .send(`${err}`);
+                .send(err);
             break;
+        case "Not Found":
+            res.status(404)
+                .send(err);
         default:
             res.status(500)
                 .send(`Internal Server Error: ${err}`);
@@ -81,5 +84,34 @@ exports.logout = async function (req, res) {
         }
     } catch (err) {
         errorOccured(err, res);
+    }
+};
+
+exports.viewUser = async function (req, res) {
+    try {
+        const user_id = req.params.user_id;
+        const auth_token = req.header('X-Authorization');
+        const result = await User.getUser(user_id);
+        if (result.length === 0){
+            throw("Not Found");
+        } else {
+            let responseBody = result[0];
+            const dbAuth_token = (await User.checkAuthUserId(user_id))[0].auth_token;
+            if (dbAuth_token != auth_token){
+                delete responseBody.email;
+            }
+            res.status(200)
+                .send(responseBody);
+        }
+    } catch (err) {
+        errorOccured(err, res);
+    }
+};
+
+exports.updateUser = async function (req, res) {
+    try {
+        console.log(1);
+    } catch (err) {
+        errorOccured(err);
     }
 };

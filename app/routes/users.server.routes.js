@@ -7,4 +7,7 @@ module.exports = function (app) {
         .post(users.login);
     app.route('/api/v1/users/logout')
         .post(users.logout);
+    app.route('/api/v1/users/:user_id')
+        .get(users.viewUser)
+        .patch(users.updateUser);
 };
