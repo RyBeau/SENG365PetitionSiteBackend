@@ -121,7 +121,7 @@ exports.updateUser = async function (req, res) {
     try {
         const user_id = req.params.user_id;
         const auth_token = req.header("X-Authorization");
-        if(!req.body) throw("Bad Request");
+        if(Object.getOwnPropertyNames(req.body).length === 0) throw("Bad Request");
         if (auth_token != null && auth_token === (await User.checkAuthUserId(user_id))[0].auth_token) {
             const originalUser = (await User.getUser(user_id))[0];
             const oldPassword = (await User.getPass(originalUser.email))[0].password;
