@@ -32,3 +32,10 @@ exports.setAuth = async function (email, token) {
     const q = "UPDATE User SET auth_token = (?) where email = (?)";
     const [result, _] = await connection.query(q, values);
 };
+
+exports.removeAuth = async function (auth_token) {
+    const connection = await  db.getPool().getConnection();
+    const q = "UPDATE User SET auth_token = NULL where auth_token = (?)";
+    const [result, _] = await connection.query(q, auth_token);
+    return result;
+}

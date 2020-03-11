@@ -5,4 +5,6 @@ module.exports = function (app) {
         .post(users.register);
     app.route('/api/v1/users/login')
         .post(users.login);
+    app.route('/api/v1/users/logout')
+        .post(users.logout);
 };

@@ -12,8 +12,11 @@ function errorOccured (err, res) {
     switch (err) {
         case "Bad Request":
             res.status(400)
-                .send(`Bad Request`);
+                .send(`${err}`);
             break;
+        case "Unauthorized":
+            res.status(401)
+                .send(`${err}`);
         default:
             res.status(500)
                 .send(`Internal Server Error: ${err}`);
@@ -55,6 +58,21 @@ exports.login = async function (req, res) {
         } else {
                 throw("Bad Request");
             }
+        }
+    } catch (err) {
+        errorOccured(err, res);
+    }
+};
+
+exports.logout = async function (req, res) {
+    try {
+        const auth_token = req.header('X-Authorization');
+        if (auth_token === null){
+            throw("Unauthorized");
+        } else {
+            const result = await User.removeAuth(auth_token);
+            res.status(200)
+                .send("OK");
         }
     } catch (err) {
         errorOccured(err, res);
