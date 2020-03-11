@@ -17,6 +17,7 @@ function errorOccured (err, res) {
         case "Unauthorized":
             res.status(401)
                 .send(`${err}`);
+            break;
         default:
             res.status(500)
                 .send(`Internal Server Error: ${err}`);
@@ -71,8 +72,12 @@ exports.logout = async function (req, res) {
             throw("Unauthorized");
         } else {
             const result = await User.removeAuth(auth_token);
-            res.status(200)
-                .send("OK");
+            if (result.affectedRows === 0){
+                throw("Unauthorized");
+            } else {
+                res.status(200)
+                    .send("OK");
+            }
         }
     } catch (err) {
         errorOccured(err, res);
