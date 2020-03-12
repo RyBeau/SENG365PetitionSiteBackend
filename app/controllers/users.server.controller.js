@@ -136,13 +136,13 @@ exports.updateUser = async function (req, res) {
                 if (!(await checkEmail(email)) && email !== originalUser.email){
                     console.log(1);
                     not_sent = false;
-                    res.status(1)
+                    res.status(100)
                         .send("OK");
                     //throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('email')){
                 not_sent = false;
-                res.status(5)
+                res.status(512)
                     .send("OK");
                 //throw("Forbidden");
             } else {
@@ -151,13 +151,13 @@ exports.updateUser = async function (req, res) {
             if (password != undefined) {
                 if (currentPassword !== oldPassword){
                     not_sent = false;
-                    res.status(2)
+                    res.status(210)
                         .send("OK");
                     //throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('password')) {
                 not_sent = false;
-                res.status(3)
+                res.status(300)
                     .send("OK");
                 //throw("Forbidden");
 
