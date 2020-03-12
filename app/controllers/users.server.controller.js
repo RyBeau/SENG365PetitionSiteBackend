@@ -134,7 +134,9 @@ exports.updateUser = async function (req, res) {
             if (email != undefined){
                 if (!(await checkEmail(email)) && email !== originalUser.email){
                     console.log(1);
-                    throw("Forbidden");
+                    res.status(1)
+                        .send("OK");
+                    //throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('email')){
                 throw("Forbidden");
@@ -143,16 +145,18 @@ exports.updateUser = async function (req, res) {
             }
             if (password != undefined) {
                 if (currentPassword !== oldPassword){
-                    console.log(2);
-                    throw("Forbidden");
+                    res.status(2)
+                        .send("OK");
+                    //throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('password')) {
-                console.log(3);
-                throw("Forbidden");
+                res.status(3)
+                    .send("OK");
+                //throw("Forbidden");
 
             } else {
                     password = originalUser.password;
-                }
+            }
             const result = await User.updateUser(name, email, password, city, country, user_id);
             res.status(200)
                 .send("OK");
