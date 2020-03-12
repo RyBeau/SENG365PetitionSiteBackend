@@ -140,7 +140,7 @@ exports.updateUser = async function (req, res) {
             } else {
                 email = originalUser.email;
             }
-            if (password != undefined && not_sent) {
+            if (password != undefined) {
                 if (currentPassword !== oldPassword){
                     throw("Forbidden");
                 }
