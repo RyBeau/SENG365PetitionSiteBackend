@@ -132,18 +132,22 @@ exports.updateUser = async function (req, res) {
             let password = req.body.password;
             let currentPassword = req.body.currentPassword;
             if (email != null){
-                if (!(await checkEmail(email)) && email != originalUser.email){
+                if (!(await checkEmail(email)) && email !== originalUser.email){
+                    console.log(1);
                     throw("Forbidden");
                 }
             } else {
                 email = originalUser.email;
             }
             if (password != null) {
-                if (currentPassword != oldPassword){
+                if (currentPassword !== oldPassword){
+                    console.log(2);
                     throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('password')) {
+                console.log(3);
                 throw("Forbidden");
+
             } else {
                     password = originalUser.password;
                 }
