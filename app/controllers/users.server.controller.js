@@ -119,6 +119,7 @@ exports.viewUser = async function (req, res) {
 
 exports.updateUser = async function (req, res) {
     try {
+        let not_sent = true;
         const user_id = req.params.user_id;
         const auth_token = req.header("X-Authorization");
         if(Object.getOwnPropertyNames(req.body).length === 0) throw("Bad Request");
@@ -134,22 +135,28 @@ exports.updateUser = async function (req, res) {
             if (email != undefined){
                 if (!(await checkEmail(email)) && email !== originalUser.email){
                     console.log(1);
+                    not_sent = false;
                     res.status(1)
                         .send("OK");
                     //throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('email')){
-                throw("Forbidden");
+                not_sent = false;
+                res.status(5)
+                    .send("OK");
+                //throw("Forbidden");
             } else {
                 email = originalUser.email;
             }
             if (password != undefined) {
                 if (currentPassword !== oldPassword){
+                    not_sent = false;
                     res.status(2)
                         .send("OK");
                     //throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('password')) {
+                not_sent = false;
                 res.status(3)
                     .send("OK");
                 //throw("Forbidden");
@@ -158,8 +165,10 @@ exports.updateUser = async function (req, res) {
                     password = originalUser.password;
             }
             const result = await User.updateUser(name, email, password, city, country, user_id);
-            res.status(200)
-                .send("OK");
+            if (not_sent){
+                res.status(200)
+                    .send("OK");
+            }
         } else {
             throw("Unauthorized")
         }
