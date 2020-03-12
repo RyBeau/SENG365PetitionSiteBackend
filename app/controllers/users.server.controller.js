@@ -119,7 +119,6 @@ exports.viewUser = async function (req, res) {
 
 exports.updateUser = async function (req, res) {
     try {
-        let not_sent = true;
         const user_id = req.params.user_id;
         const auth_token = req.header("X-Authorization");
         if(Object.getOwnPropertyNames(req.body).length === 0) throw("Bad Request");
@@ -134,41 +133,26 @@ exports.updateUser = async function (req, res) {
             let currentPassword = req.body.currentPassword;
             if (email != undefined){
                 if (!(await checkEmail(email)) && email !== originalUser.email){
-                    console.log(1);
-                    not_sent = false;
-                    res.status(100)
-                        .send("OK");
-                    //throw("Forbidden");
+                    throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('email')){
-                not_sent = false;
-                res.status(512)
-                    .send("OK");
-                //throw("Forbidden");
+                throw("Forbidden");
             } else {
                 email = originalUser.email;
             }
             if (password != undefined && not_sent) {
                 if (currentPassword !== oldPassword){
-                    not_sent = false;
-                    res.status(210)
-                        .send("OK");
-                    //throw("Forbidden");
+                    throw("Forbidden");
                 }
             } else if (req.hasOwnProperty('password')) {
-                not_sent = false;
-                res.status(300)
-                    .send("OK");
-                //throw("Forbidden");
+                throw("Forbidden");
 
             } else {
                     password = originalUser.password;
             }
             const result = await User.updateUser(name, email, password, city, country, user_id);
-            if (not_sent){
-                res.status(200)
-                    .send("OK");
-            }
+            res.status(200)
+                .send("OK");
         } else {
             throw("Unauthorized")
         }
