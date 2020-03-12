@@ -148,7 +148,7 @@ exports.updateUser = async function (req, res) {
             } else {
                 email = originalUser.email;
             }
-            if (password != undefined) {
+            if (password != undefined && not_sent) {
                 if (currentPassword !== oldPassword){
                     not_sent = false;
                     res.status(210)
