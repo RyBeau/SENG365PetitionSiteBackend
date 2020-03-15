@@ -10,8 +10,8 @@ module.exports = function (app) {
     app.route('/api/v1/users/:user_id')
         .get(users.viewUser)
         .patch(users.updateUser);
-    app.route('/users/:id/photo')
-        .get()
+    app.route('/api/v1/users/:user_id/photo')
+        .get(users.viewPhoto)
         .put()
         .delete();
 };

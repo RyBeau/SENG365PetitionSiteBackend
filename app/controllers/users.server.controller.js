@@ -163,14 +163,15 @@ exports.updateUser = async function (req, res) {
 
 exports.viewPhoto = async function (req, res) {
     try {
-        const path = "../storage/photos/"  + (await User.getPhoto(user_id))[0].photo_filename;
-        if(path != null){
+        const user_id = req.params.user_id;
+        const filename = (await User.getPhoto(user_id))[0].photo_filename;
+        if(filename != null){
             res.status(200)
-                .sendFile(path);
+                .sendFile("/storage/photos/"  + filename, {root: process.cwd() });
         } else {
             throw("Not Found");
         }
     } catch (err){
-        errorOccured(err);
+        errorOccured(err, res);
     }
 };
