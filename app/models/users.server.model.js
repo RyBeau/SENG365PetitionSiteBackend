@@ -62,3 +62,10 @@ exports.updateUser = async function (name, email, password, city, country, user_
     const [result, _] = await connection.query(q, values);
     return result;
 };
+
+exports.getPhoto = async function (user_id) {
+    const connection = await db.getPool();
+    const q = "SELECT photo_filename FROM User WHERE user_id = (?)";
+    const [result, _] = await connection.query(q, user_id);
+    return result;
+};

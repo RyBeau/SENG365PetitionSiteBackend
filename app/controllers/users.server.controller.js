@@ -160,3 +160,17 @@ exports.updateUser = async function (req, res) {
         errorOccured(err, res);
     }
 };
+
+exports.viewPhoto = async function (req, res) {
+    try {
+        const path = "../storage/photos/"  + (await User.getPhoto(user_id))[0].photo_filename;
+        if(path != null){
+            res.status(200)
+                .sendFile(path);
+        } else {
+            throw("Not Found");
+        }
+    } catch (err){
+        errorOccured(err);
+    }
+};
