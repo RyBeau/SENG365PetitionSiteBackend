@@ -167,7 +167,7 @@ exports.viewPhoto = async function (req, res) {
         const user_id = req.params.user_id;
         const filename = (await User.getPhoto(user_id))[0].photo_filename;
         if(filename != null){
-             const file = await fs.createReadStream(process.cwd() + "/storage/photos/" + filename, "binary");
+             const file = fs.createReadStream(process.cwd() + "/storage/photos/" + filename, "binary");
             res.writeHead(200, {'Content-Type': 'image/jpeg'})
                 .send(file);
         } else {
