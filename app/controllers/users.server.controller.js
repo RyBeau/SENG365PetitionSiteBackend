@@ -168,7 +168,7 @@ exports.viewPhoto = async function (req, res) {
         const filename = (await User.getPhoto(user_id))[0].photo_filename;
         if(filename != null){
             res.writeHead(200, {'Content-Type': 'image/jpeg'})
-                .sendFile(process.cwd() + "/storage/photos/" + filename);
+                .sendFile("/storage/photos/"  + filename, {root: process.cwd() });
         } else {
             throw("Not Found");
         }
