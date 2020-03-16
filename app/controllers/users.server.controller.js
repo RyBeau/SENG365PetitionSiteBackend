@@ -201,7 +201,7 @@ exports.addPhoto =  async function (req, res) {
         const contentType = getContentType(req.header("Content-Type"));
         const photo = req.body;
         const newFilename = "user_" + user_id + contentType;
-        const oldFilename = await User.getPhoto(user_id)[0].photo_filename;
+        const oldFilename = (await User.getPhoto(user_id))[0].photo_filename;
         if (req_auth_token === undefined) throw("Unauthorized");
         if (!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
         if (photo === undefined) throw("Bad Request");
@@ -212,7 +212,7 @@ exports.addPhoto =  async function (req, res) {
             res.status(200)
                 .send("OK");
         } else {
-            await fs.writeFile(path + newFilename, photo);
+            await fs.writeFile(path + newFilename, photo, (err) =>{throw(err);});
             await User.setPhoto(user_id, newFilename);
             res.status(201)
                 .send("Created");
