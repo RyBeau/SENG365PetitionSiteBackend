@@ -167,12 +167,14 @@ exports.viewPhoto = async function (req, res) {
         const user_id = req.params.user_id;
         const filename = (await User.getPhoto(user_id))[0].photo_filename;
         if(filename != null){
-            res.writeHead(200, {'Content-Type': 'image/jpeg'})
-                .sendFile("/storage/photos/"  + filename, {root: process.cwd() });
+            res.status(200)
+                //.setHeader( 'Content-Type', 'image/jpeg')
+                .sendFile("/storage/photos/"  + filename, {root: process.cwd()});
         } else {
             throw("Not Found");
         }
     } catch (err){
+        console.log(err);
         errorOccured(err, res);
     }
 };
