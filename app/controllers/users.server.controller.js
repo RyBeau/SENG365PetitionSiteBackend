@@ -168,7 +168,7 @@ exports.viewPhoto = async function (req, res) {
         const filename = (await User.getPhoto(user_id))[0].photo_filename;
         if(filename != null){
              const file = fs.readFile(process.cwd() + "/storage/photos/" + filename, "binary", (err) => {if(err)console.log(err);});
-            res.status(200)
+            res.writeHead(200, {'Content-Type': 'image/jpeg'})
                 .send(file);
         } else {
             throw("Not Found");
@@ -198,12 +198,10 @@ function getContentType (typeHeader){
 exports.addPhoto =  async function (req, res) {
     try{
         const path = process.cwd() + "/storage/photos/"
-        console.log(path);
         const req_auth_token = req.header("X-Authorization");
         const user_id = req.params.user_id;
         const contentType = getContentType(req.header("Content-Type"));
         const photo = req.body;
-        console.log(req.body);
         const newFilename = "user_" + user_id + contentType;
         const oldFilename = (await User.getPhoto(user_id))[0].photo_filename;
         if (req_auth_token === undefined) throw("Unauthorized");
