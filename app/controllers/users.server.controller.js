@@ -1,5 +1,6 @@
 const User = require('../models/users.server.model');
 const Auth = require("../middleware/userAuthentication");
+const fs = require('fs');
 
 async function checkEmail(email){
     let result = false;
@@ -172,6 +173,51 @@ exports.viewPhoto = async function (req, res) {
             throw("Not Found");
         }
     } catch (err){
+        errorOccured(err, res);
+    }
+};
+
+function getContentType (typeHeader){
+    switch (typeHeader){
+        case "image/png":
+            return ".png";
+            break;
+        case "image/jpeg":
+            return ".jpeg";
+            break;
+        case "image/gif":
+            return ".gif";
+            break;
+        default:
+            throw("Bad Request");
+    }
+};
+
+exports.addPhoto =  async function (req, res) {
+    try{
+        const path = "../../storage/photos/"
+        const req_auth_token = req.header("X-Authorization");
+        const user_id = req.params.user_id;
+        const contentType = getContentType(req.header("Content-Type"));
+        const photo = req.body;
+        const newFilename = "user_" + user_id + contentType;
+        const oldFilename = await User.getPhoto(user_id)[0].photo_filename;
+        if (req_auth_token === undefined) throw("Unauthorized");
+        if (!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
+        if (photo === undefined) throw("Bad Request");
+        if (oldFilename != null){
+            await fs.unlink(path + oldFilename, (err) =>{throw(err);});
+            await fs.writeFile(path + newFilename, photo, (err) => {throw(err);});
+            await User.setPhoto(user_id, newFilename);
+            res.status(200)
+                .send("OK");
+        } else {
+            await fs.writeFile(path + newFilename, photo);
+            await User.setPhoto(user_id, newFilename);
+            res.status(201)
+                .send("Created");
+        }
+    } catch (err) {
         errorOccured(err, res);
     }
 };
