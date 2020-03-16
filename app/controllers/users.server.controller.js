@@ -190,29 +190,32 @@ function getContentType (typeHeader){
             break;
         default:
             throw("Bad Request");
+            break;
     }
 };
 
 exports.addPhoto =  async function (req, res) {
     try{
-        const path = "../../storage/photos/"
+        const path = process.cwd() + "/storage/photos/"
+        console.log(path);
         const req_auth_token = req.header("X-Authorization");
         const user_id = req.params.user_id;
         const contentType = getContentType(req.header("Content-Type"));
         const photo = req.body;
+        console.log(req.body);
         const newFilename = "user_" + user_id + contentType;
         const oldFilename = (await User.getPhoto(user_id))[0].photo_filename;
         if (req_auth_token === undefined) throw("Unauthorized");
         if (!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
         if (photo === undefined) throw("Bad Request");
         if (oldFilename != null){
-            await fs.unlink(path + oldFilename, (err) =>{throw(err);});
-            await fs.writeFile(path + newFilename, photo, (err) => {throw(err);});
+            await fs.unlink(path + oldFilename, (err) =>{if (err) console.log(err);});
+            await fs.writeFile(path + newFilename, photo, "binary",(err) => {if(err) console.log(err);});
             await User.setPhoto(user_id, newFilename);
             res.status(200)
                 .send("OK");
         } else {
-            await fs.writeFile(path + newFilename, photo, (err) =>{throw(err);});
+            await fs.writeFile(path + newFilename, photo, "binary",(err) =>{if (err) console.log(err);});
             await User.setPhoto(user_id, newFilename);
             res.status(201)
                 .send("Created");
