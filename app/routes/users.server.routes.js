@@ -13,5 +13,5 @@ module.exports = function (app) {
     app.route('/api/v1/users/:user_id/photo')
         .get(users.viewPhoto)
         .put(users.addPhoto)
-        .delete();
+        .delete(users.deletePhoto);
 };

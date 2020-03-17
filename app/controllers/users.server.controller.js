@@ -202,3 +202,24 @@ exports.addPhoto =  async function (req, res) {
         Error.errorOccurred(err, res);
     }
 };
+
+exports.deletePhoto = async function (req, res) {
+    try {
+        const user_id = req.params.user_id;
+        if (!(await Auth.userExists(user_id))) throw("Not Found");
+        const path = process.cwd() + "/storage/photos/"
+        const req_auth_token = req.header("X-Authorization");
+        if (req_auth_token === undefined) throw("Unauthorized");
+        if (!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
+        const filename = (await User.getPhoto(user_id))[0].photo_filename;
+        if (filename != null){
+            await fs.unlink(path + filename, (err) =>{if (err) throw(err);});
+            res.status(200)
+                .send("OK");
+        } else {
+            throw("Not Found");
+        }
+    } catch (err) {
+        Error.errorOccurred(err, res);
+    }
+};
