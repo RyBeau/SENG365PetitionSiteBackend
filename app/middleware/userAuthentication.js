@@ -8,3 +8,12 @@ exports.authenticate = async function (authHeader, userId) {
     }
     return authorised
 };
+
+exports.userExists = async function (user_id) {
+    let exists = false;
+    const userCount = (await User.countUser(user_id));
+    if (userCount[0].userCount > 0){
+        exists = true;
+    }
+    return exists;
+};

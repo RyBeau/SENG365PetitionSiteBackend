@@ -174,7 +174,6 @@ exports.viewPhoto = async function (req, res) {
             throw("Not Found");
         }
     } catch (err){
-        console.log(err);
         errorOccured(err, res);
     }
 };
@@ -198,15 +197,18 @@ function getContentType (typeHeader){
 
 exports.addPhoto =  async function (req, res) {
     try{
-        const path = process.cwd() + "/storage/photos/"
-        const req_auth_token = req.header("X-Authorization");
         const user_id = req.params.user_id;
+        if (!(await Auth.userExists(user_id))) throw("Not Found");
+
+        const path = process.cwd() + "/storage/photos/"
+
+        const req_auth_token = req.header("X-Authorization");
+        if (req_auth_token === undefined) throw("Unauthorized");
+        if (!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
         const contentType = getContentType(req.header("Content-Type"));
         const photo = req.body;
         const newFilename = "user_" + user_id + contentType;
         const oldFilename = (await User.getPhoto(user_id))[0].photo_filename;
-        if (req_auth_token === undefined) throw("Unauthorized");
-        if (!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
         if (photo === undefined) throw("Bad Request");
         if (oldFilename != null){
             await fs.unlink(path + oldFilename, (err) =>{if (err) throw(err);});

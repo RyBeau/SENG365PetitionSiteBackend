@@ -77,3 +77,10 @@ exports.setPhoto = async function (user_id, photo_filename) {
     const [result, _] = await connection.query(q, values);
     return result;
 };
+
+exports.countUser = async function (user_id) {
+    const connection = await db.getPool();
+    const q = "SELECT count(*) AS userCount FROM User WHERE user_id = (?)";
+    const [result, _] = await connection.query(q, user_id);
+    return result
+};
