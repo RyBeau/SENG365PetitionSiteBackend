@@ -17,3 +17,7 @@ exports.userExists = async function (user_id) {
     }
     return exists;
 };
+
+exports.getUserFromAuth = async function (auth_token) {
+    return await User.getUserFromAuth(auth_token);
+};

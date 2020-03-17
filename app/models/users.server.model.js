@@ -83,3 +83,10 @@ exports.countUser = async function (user_id) {
     const [result, _] = await connection.query(q, user_id);
     return result
 };
+
+exports.getUserFromAuth = async function (auth_token) {
+    const connection = await db.getPool();
+    const q = "SELECT user_id FROM User WHERE auth_token = (?)";
+    const [result, _] = await connection.query(q, auth_token);
+    return result;
+};
