@@ -209,13 +209,13 @@ exports.addPhoto =  async function (req, res) {
         if (!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
         if (photo === undefined) throw("Bad Request");
         if (oldFilename != null){
-            await fs.unlink(path + oldFilename, (err) =>{if (err) console.log(err);});
-            await fs.writeFile(path + newFilename, photo, "binary",(err) => {if(err) console.log(err);});
+            await fs.unlink(path + oldFilename, (err) =>{if (err) throw(err);});
+            await fs.writeFile(path + newFilename, photo, "binary",(err) => {if(err) throw(err);});
             await User.setPhoto(user_id, newFilename);
             res.status(200)
                 .send("OK");
         } else {
-            await fs.writeFile(path + newFilename, photo, "binary",(err) =>{if (err) console.log(err);});
+            await fs.writeFile(path + newFilename, photo, "binary",(err) =>{if (err) throw(err);});
             await User.setPhoto(user_id, newFilename);
             res.status(201)
                 .send("Created");
