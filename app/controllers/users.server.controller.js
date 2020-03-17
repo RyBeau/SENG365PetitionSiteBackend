@@ -176,6 +176,7 @@ async function photoChecks (req) {
     if (!(await Auth.userExists(user_id))) throw("Not Found");
     const req_auth_token = req.header("X-Authorization");
     if (req_auth_token === undefined) throw("Unauthorized");
+    if(!(await Auth.authenticate(req_auth_token, user_id))) throw("Forbidden");
     return user_id;
 }
 
