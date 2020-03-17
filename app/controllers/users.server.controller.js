@@ -1,5 +1,6 @@
 const User = require('../models/users.server.model');
-const Auth = require("../middleware/userAuthentication");
+const Auth = require("../middleware/userAuth.middleware");
+const Error = require("../middleware/error.middleware");
 const fs = require('fs');
 
 async function checkEmail(email){
@@ -8,31 +9,6 @@ async function checkEmail(email){
         result = true;
     }
     return result;
-}
-
-function errorOccured (err, res) {
-    switch (err) {
-        case "Bad Request":
-            res.status(400)
-                .send(err);
-            break;
-        case "Unauthorized":
-            res.status(401)
-                .send(err);
-            break;
-        case "Forbidden":
-            res.status(403)
-                .send(err);
-            break;
-        case "Not Found":
-            res.status(404)
-                .send(err);
-            break;
-        default:
-            res.status(500)
-                .send(`Internal Server Error: ${err}`);
-            break;
-    }
 }
 
 exports.register = async function (req, res) {
@@ -48,7 +24,7 @@ exports.register = async function (req, res) {
             throw("Bad Request");
         }
     } catch (err) {
-        errorOccured(err, res);
+        Error.errorOccurred(err, res);
     }
 };
 
@@ -71,7 +47,7 @@ exports.login = async function (req, res) {
             }
         }
     } catch (err) {
-        errorOccured(err, res);
+        Error.errorOccurred(err, res);
     }
 };
 
@@ -90,7 +66,7 @@ exports.logout = async function (req, res) {
             }
         }
     } catch (err) {
-        errorOccured(err, res);
+        Error.errorOccurred(err, res);
     }
 };
 
@@ -114,7 +90,7 @@ exports.viewUser = async function (req, res) {
                 .send(responseBody);
         }
     } catch (err) {
-        errorOccured(err, res);
+        Error.errorOccurred(err, res);
     }
 };
 
@@ -158,7 +134,7 @@ exports.updateUser = async function (req, res) {
             throw("Unauthorized")
         }
     } catch (err) {
-        errorOccured(err, res);
+        Error.errorOccurred(err, res);
     }
 };
 
@@ -174,7 +150,7 @@ exports.viewPhoto = async function (req, res) {
             throw("Not Found");
         }
     } catch (err){
-        errorOccured(err, res);
+        Error.errorOccurred(err, res);
     }
 };
 
@@ -223,6 +199,6 @@ exports.addPhoto =  async function (req, res) {
                 .send("Created");
         }
     } catch (err) {
-        errorOccured(err, res);
+        Error.errorOccurred(err, res);
     }
 };

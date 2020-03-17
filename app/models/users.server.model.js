@@ -30,7 +30,7 @@ exports.setAuth = async function (email, token) {
     const connection = await db.getPool();
     const values = [token, email];
     const q = "UPDATE User SET auth_token = (?) where email = (?)";
-    const [result, _] = await connection.query(q, values);
+    await connection.query(q, values);
 };
 
 exports.checkAuthUserId = async function (user_id) {
@@ -56,7 +56,6 @@ exports.getUser = async function (user_id) {
 
 exports.updateUser = async function (name, email, password, city, country, user_id) {
     const values = [name, email, password, city, country, user_id];
-    console.log(values);
     const connection = await db.getPool();
     const q = "UPDATE User SET name = (?), email = (?), password = (?), city = (?), country = (?) where user_id = (?)";
     const [result, _] = await connection.query(q, values);
