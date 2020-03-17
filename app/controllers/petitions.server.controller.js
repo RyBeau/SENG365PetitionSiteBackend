@@ -13,15 +13,16 @@ exports.viewOne = async function (req, res) {
         if (result.length > 0){
             res.status(200).send(result[0]);
         } else {
-            throw("Not Found")
+            throw("Not Found");
         }
     } catch (err) {
         Error.errorOccurred(err, res);
     }
 };
 
-function getISODate(){
-
+function getISODate(date){
+    let isoDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() ;
+    return isoDate;
 }
 
 async function checkPostRequest(user_id, title, description, category_id,created_date, closing_date) {
@@ -37,8 +38,8 @@ exports.addPetition = async function (req, res) {
         const title = req.body.title;
         const description = req.body.description;
         const category_id = req.body.categoryId;
-        const closing_date = Date(req.body.closingDate);
-        let created_date = getDate();
+        const closing_date = getISODate(new Date(req.body.closingDate));
+        let created_date = getISODate(new Date());
         const req_auth_token = req.header('X-Authorization');
         if (req_auth_token === undefined) throw('Unauthorized');
         const user_id = (await Auth.getUserFromAuth(req_auth_token))[0].user_id;

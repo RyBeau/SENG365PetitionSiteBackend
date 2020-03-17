@@ -9,7 +9,7 @@ exports.getPetitionFromID = async function (petitionID) {
     const connection = await db.getPool();
     const q = "SELECT Petition.petition_id as petitionID, title, Category.name AS category, User.name AS authorName, count(Signature.signatory_id) AS signatureCount" +
         ",description, author_id AS authorId, city AS authorCity, country AS authorCountry, created_date AS createdDate, closing_date AS closingDATE" +
-        " FROM (((Petition JOIN Category ON Petition.category_id = Category.category_id) JOIN User ON author_id = user_id) JOIN" +
+        " FROM (((Petition JOIN Category ON Petition.category_id = Category.category_id) JOIN User ON author_id = user_id) LEFT OUTER JOIN" +
         " Signature ON Signature.petition_id = Petition.petition_id) WHERE Petition.petition_id = (?) group by Petition.petition_id";
     const [result, _] = await connection.query(q, petitionID);
     return result;
