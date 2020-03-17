@@ -26,9 +26,8 @@ function getISODate(date){
 }
 
 async function checkPostRequest(user_id, title, description, category_id,created_date, closing_date) {
-    if(user_id === undefined) throw('Unauthorized');
-    if(title === undefined) throw('Bad Request');
-    if(description === undefined) throw('Bad Request');
+    if(title === undefined || title.length === 0) throw('Bad Request');
+    if(description === undefined || description.length === 0) throw('Bad Request');
     if(!(await Petition.checkCategory(category_id))) throw('Bad Request');
     if(closing_date < created_date) throw('Bad Request');
 };
@@ -42,13 +41,12 @@ exports.addPetition = async function (req, res) {
         let created_date = getISODate(new Date());
         const req_auth_token = req.header('X-Authorization');
         if (req_auth_token === undefined) throw('Unauthorized');
-        const user_id = (await Auth.getUserFromAuth(req_auth_token))[0].user_id;
-        checkPostRequest(user_id, title, description, category_id, created_date, closing_date);
+        const user_id = await Auth.getUserFromAuth(req_auth_token);
+        await checkPostRequest(user_id, title, description, category_id, created_date, closing_date);
         const result = await Petition.addPetition(title, description, user_id, category_id, created_date, closing_date);
         res.status(201)
             .send({"petitionId":result.insertId});
     } catch (err) {
-        console.log(err);
         Error.errorOccurred(err, res);
     }
 };

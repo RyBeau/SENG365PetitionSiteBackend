@@ -19,5 +19,10 @@ exports.userExists = async function (user_id) {
 };
 
 exports.getUserFromAuth = async function (auth_token) {
-    return await User.getUserFromAuth(auth_token);
+    try {
+        const user_id = (await User.getUserFromAuth(auth_token))[0].user_id;
+        return user_id;
+    } catch {
+        throw('Unauthorized');
+    }
 };
