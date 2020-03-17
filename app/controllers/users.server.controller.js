@@ -94,6 +94,29 @@ exports.viewUser = async function (req, res) {
     }
 };
 
+async function checkPassword(email, password, currentPassword, dbPassword, originalUser){
+    if (email != undefined){
+        if (!(await checkEmail(email)) && email !== originalUser.email){
+            throw("Bad Request");
+        }
+    } else if (req.hasOwnProperty('email')){
+        throw("Bad Request");
+    } else {
+        email = originalUser.email;
+    }
+    if (password != undefined) {
+        if (currentPassword !== dbPassword){
+            throw("Forbidden");
+        }
+    } else if (req.hasOwnProperty('password')) {
+        throw("Bad Request");
+
+    } else {
+        password = dbPassword;
+    }
+    return [password, email];
+}
+
 exports.updateUser = async function (req, res) {
     try {
         const user_id = req.params.user_id;
@@ -101,33 +124,15 @@ exports.updateUser = async function (req, res) {
         if(Object.getOwnPropertyNames(req.body).length === 0) throw("Bad Request");
         if (auth_token != undefined && await Auth.authenticate(auth_token, user_id)) {
             const originalUser = (await User.getUser(user_id))[0];
-            const oldPassword = (await User.getPass(originalUser.email))[0].password;
+            const dbPassword = (await User.getPass(originalUser.email))[0].password;
             const name = req.body.name === undefined ? originalUser.name: req.body.name;
             const city = req.body.city === undefined ? originalUser.city: req.body.city;
             const country = req.body.country === undefined ? originalUser.country: req.body.country;
             let email = req.body.email;
             let password = req.body.password;
             let currentPassword = req.body.currentPassword;
-            if (email != undefined){
-                if (!(await checkEmail(email)) && email !== originalUser.email){
-                    throw("Forbidden");
-                }
-            } else if (req.hasOwnProperty('email')){
-                throw("Forbidden");
-            } else {
-                email = originalUser.email;
-            }
-            if (password != undefined) {
-                if (currentPassword !== oldPassword){
-                    throw("Forbidden");
-                }
-            } else if (req.hasOwnProperty('password')) {
-                throw("Forbidden");
-
-            } else {
-                    password = originalUser.password;
-            }
-            const result = await User.updateUser(name, email, password, city, country, user_id);
+            [password, email] = await checkPassword(email, password, dbPassword, currentPassword, originalUser);
+            await User.updateUser(name, email, password, city, country, user_id);
             res.status(200)
                 .send("OK");
         } else {
@@ -144,7 +149,6 @@ exports.viewPhoto = async function (req, res) {
         const filename = (await User.getPhoto(user_id))[0].photo_filename;
         if(filename != null){
             res.status(200)
-                //.setHeader( 'Content-Type', 'image/jpeg')
                 .sendFile("/storage/photos/"  + filename, {root: process.cwd()});
         } else {
             throw("Not Found");
@@ -158,18 +162,14 @@ function getContentType (typeHeader){
     switch (typeHeader){
         case "image/png":
             return ".png";
-            break;
         case "image/jpeg":
             return ".jpeg";
-            break;
         case "image/gif":
             return ".gif";
-            break;
         default:
             throw("Bad Request");
-            break;
     }
-};
+}
 
 async function photoChecks (req) {
     const user_id = req.params.user_id;
