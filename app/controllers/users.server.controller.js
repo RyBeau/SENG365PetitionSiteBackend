@@ -80,7 +80,7 @@ exports.viewUser = async function (req, res) {
         } else {
             let responseBody = result[0];
             if (req_auth_token != undefined){
-                if (await Auth.authenticate(req_auth_token, user_id)) {
+                if (!(await Auth.authenticate(req_auth_token, user_id))) {
                     delete responseBody.email;
                 }
             } else {
@@ -94,7 +94,7 @@ exports.viewUser = async function (req, res) {
     }
 };
 
-async function checkPassword(email, password, currentPassword, dbPassword, originalUser){
+async function checkPassword(req, email, password, currentPassword, dbPassword, originalUser){
     if (email != undefined){
         if (!(await checkEmail(email)) && email !== originalUser.email){
             throw("Bad Request");
@@ -131,7 +131,7 @@ exports.updateUser = async function (req, res) {
             let email = req.body.email;
             let password = req.body.password;
             let currentPassword = req.body.currentPassword;
-            [password, email] = await checkPassword(email, password, dbPassword, currentPassword, originalUser);
+            [password, email] = await checkPassword(req, email, password, dbPassword, currentPassword, originalUser);
             await User.updateUser(name, email, password, city, country, user_id);
             res.status(200)
                 .send("OK");
