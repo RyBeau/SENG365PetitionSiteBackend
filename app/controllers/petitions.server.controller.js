@@ -3,6 +3,7 @@ const Error = require('../middleware/error.middleware');
 const Auth = require('../middleware/userAuth.middleware');
 
 exports.viewAll = async function (req, res) {
+    // TODO
     console.log("Testing")
     res.status(500)
         .send("UNFINISHED")
@@ -48,6 +49,22 @@ exports.addPetition = async function (req, res) {
         const result = await Petition.addPetition(title, description, user_id, category_id, created_date, closing_date);
         res.status(201)
             .send({"petitionId":result.insertId});
+    } catch (err) {
+        Error.errorOccurred(err, res);
+    }
+};
+
+exports.deletePetition = async function (req, res) {
+    try {
+        const petition_id = req.params.petition_id;
+        if((await Petition.getPetitionFromID(petition_id))[0].length === 0) throw("Not Found");
+        const req_auth_token = req.header("X-Authorization");
+        if (req_auth_token === undefined) throw('Unauthorized');
+        const author_id = (await Petition.getAuthorID(petition_id))[0].author_id;
+        if(!(await Auth.authenticate(req_auth_token, author_id))) throw("Forbidden");
+        await Petition.deletePetition(petition_id);
+        res.status(200)
+            .send("OK");
     } catch (err) {
         Error.errorOccurred(err, res);
     }

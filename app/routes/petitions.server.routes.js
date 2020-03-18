@@ -9,5 +9,5 @@ module.exports = function (app) {
     app.route("/api/v1/petitions/:petition_id")
         .get(petitions.viewOne)
         .patch()
-        .delete();
+        .delete(petitions.deletePetition);
 };

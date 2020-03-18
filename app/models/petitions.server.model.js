@@ -34,6 +34,19 @@ exports.addPetition = async function (title, description, author_id, category_id
     return result;
 };
 
+exports.getAuthorID = async function (petition_id){
+    await connection = db.getPool();
+    const q = "SELECT author_id from Petition WHERE petition_id = (?)";
+    const [result, _] = await connection.query(q, petition_id);
+    return result;
+};
+
+exports.deletePetition = async function (petition_id){
+    const connection = db.getPool();
+    const q = "DELETE * FROM Petition WHERE petition_id = (?)";
+    await connection.query(q, petition_id);
+};
+
 exports.viewCategories = async function () {
     const connection = await db.getPool();
     const q = "SELECT category_id AS categoryId, name FROM Category";
