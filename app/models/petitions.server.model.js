@@ -33,3 +33,10 @@ exports.addPetition = async function (title, description, author_id, category_id
     const [result, _] = await connection.query(q, [values]);
     return result;
 };
+
+exports.viewCategories = async function () {
+    const connection = await db.getPool();
+    const q = "SELECT category_id AS categoryId, name FROM Category";
+    const [result, _] = await connection.query(q);
+    return result;
+};

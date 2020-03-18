@@ -3,7 +3,9 @@ const Error = require('../middleware/error.middleware');
 const Auth = require('../middleware/userAuth.middleware');
 
 exports.viewAll = async function (req, res) {
-
+    console.log("Testing")
+    res.status(500)
+        .send("UNFINISHED")
 };
 
 exports.viewOne = async function (req, res) {
@@ -46,6 +48,17 @@ exports.addPetition = async function (req, res) {
         const result = await Petition.addPetition(title, description, user_id, category_id, created_date, closing_date);
         res.status(201)
             .send({"petitionId":result.insertId});
+    } catch (err) {
+        Error.errorOccurred(err, res);
+    }
+};
+
+exports.getCategories = async function (req, res) {
+    try {
+        const categories = (await Petition.viewCategories());
+        console.log(categories);
+        res.status(200)
+            .send(categories);
     } catch (err) {
         Error.errorOccurred(err, res);
     }
