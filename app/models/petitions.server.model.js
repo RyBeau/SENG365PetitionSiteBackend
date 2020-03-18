@@ -8,7 +8,7 @@ exports.getPetitions = async function () {
 exports.getPetitionFromID = async function (petitionID) {
     const connection = await db.getPool();
     const q = "SELECT Petition.petition_id as petitionID, title, Category.name AS category, User.name AS authorName, count(Signature.signatory_id) AS signatureCount" +
-        ",description, author_id AS authorId, city AS authorCity, country AS authorCountry, created_date AS createdDate, closing_date AS closingDATE" +
+        ",description, author_id AS authorId, city AS authorCity, country AS authorCountry, created_date AS createdDate, closing_date AS closingDate" +
         " FROM (((Petition JOIN Category ON Petition.category_id = Category.category_id) JOIN User ON author_id = user_id) LEFT OUTER JOIN" +
         " Signature ON Signature.petition_id = Petition.petition_id) WHERE Petition.petition_id = (?) group by Petition.petition_id";
     const [result, _] = await connection.query(q, petitionID);
@@ -58,7 +58,8 @@ exports.updatePetition = async function (petition_id, title, description, catego
     const connection = await db.getPool();
     const values = [title, description, category_id, closing_date, petition_id];
     const q = "UPDATE Petition SET title = (?), description = (?), category_id = (?), closing_date = (?) WHERE petition_id = (?)";
-    await connection.query(q, values);
+    const [result, _] = await connection.query(q, values);
+    return result;
 };
 
 exports.getPetitionCategoryID = async function (petition_id) {
