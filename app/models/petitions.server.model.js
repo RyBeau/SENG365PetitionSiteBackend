@@ -43,7 +43,7 @@ exports.getAuthorID = async function (petition_id){
 
 exports.deletePetition = async function (petition_id){
     const connection = db.getPool();
-    const q = "DELETE * FROM Petition WHERE petition_id = (?)";
+    const q = "DELETE FROM Petition WHERE petition_id = (?)";
     await connection.query(q, petition_id);
 };
 
