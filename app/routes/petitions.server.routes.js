@@ -8,6 +8,6 @@ module.exports = function (app) {
         .post(petitions.addPetition);
     app.route("/api/v1/petitions/:petition_id")
         .get(petitions.viewOne)
-        .patch()
+        .patch(petitions.updatePetition)
         .delete(petitions.deletePetition);
 };

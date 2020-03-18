@@ -70,6 +70,45 @@ exports.deletePetition = async function (req, res) {
     }
 };
 
+exports.updatePetition = async function (req, res) {
+    try {
+        const petition_id = req.params.petition_id;
+        const req_auth_token = req.header("X-Authorization");
+        if (req_auth_token === undefined) throw("Unauthorized");
+        const petition_information = (await Petition.getPetitionFromID(petition_id))[0];
+        if(petition_information === null) throw("Not Found");
+        if(!(await Auth.authenticate(req_auth_token, petition_information.authorId))) throw("Forbidden");
+        let title = petition_information.title;
+        if (req.hasOwnProperty("title")){
+            if(req.body.title === undefined || req.body.title.length < 1) throw("Bad Request");
+            title = req.body.title;
+        }
+        let description = petition_information.description;
+        if (req.hasOwnProperty("description")) {
+            if (req.body.description === undefined || req.body.description.length < 1) throw("Bad Request");
+            description = req.body.description;
+        }
+        let category_id = (await Petition.getPetitionCategoryID(petition_id))[0].category_id;
+        if (req.hasOwnProperty("categoryId")){
+            if(!(await Petition.checkCategory(req.body.categoryId))) throw("Bad Request");
+                category_id = req.body.categoryId;
+        }
+        let closing_date = petition_information.closing_date;
+        const current_date = new Date();
+        const req_closing_date = new Date(req.body.closingDate);
+        if (req.hasOwnProperty("closingDate")){
+            if(req_closing_date === undefined|| req_closing_date < current_date) throw("Bad Request");
+            closing_date = getISODate(req_closing_date);
+        }
+        console.log(petition_id, title, description, category_id, closing_date);
+        await Petition.updatePetition(petition_id, title, description, category_id, closing_date);
+        res.status(200)
+            .send("OK");
+    } catch (err){
+        Error.errorOccurred(err, res);
+    }
+};
+
 exports.getCategories = async function (req, res) {
     try {
         const categories = (await Petition.viewCategories());
