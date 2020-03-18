@@ -35,7 +35,7 @@ exports.addPetition = async function (title, description, author_id, category_id
 };
 
 exports.getAuthorID = async function (petition_id){
-    await connection = db.getPool();
+    const connection = db.getPool();
     const q = "SELECT author_id from Petition WHERE petition_id = (?)";
     const [result, _] = await connection.query(q, petition_id);
     return result;
