@@ -151,8 +151,9 @@ function getContentType (typeHeader){
 
 async function photoChecks (req) {
     const petition_id = req.params.petition_id;
-    const author_id = (await Petition.getAuthorID(petition_id))[0].author_id;
-    if(author_id === undefined) throw("Not Found");
+    let author_id = await Petition.getAuthorID(petition_id);
+    if(author_id.length > 0) {author_id = author_id[0].author_id}
+    else {throw("Not Found")}
     const req_auth_token = req.header("X-Authorization");
     if (req_auth_token === undefined) throw("Unauthorized");
     if(!(await Auth.authenticate(req_auth_token, author_id))) throw("Forbidden");
