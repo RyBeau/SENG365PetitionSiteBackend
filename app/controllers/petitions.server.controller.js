@@ -121,8 +121,10 @@ exports.getCategories = async function (req, res) {
 
 exports.viewPhoto = async function (req, res) {
     try {
-        const user_id = req.params.petition_id;
-        const filename = (await Petition.getPhoto(user_id))[0].photo_filename;
+        const petition_id = req.params.petition_id;
+        let filename = await Petition.getPhoto(petition_id);
+        if(filename.length > 0) {filename = filename[0].photo_filename}
+        else {throw("Not Found")}
         if(filename != null){
             res.status(200)
                 .sendFile("/storage/photos/"  + filename, {root: process.cwd()});
@@ -150,7 +152,7 @@ function getContentType (typeHeader){
 async function photoChecks (req) {
     const petition_id = req.params.petition_id;
     const author_id = (await Petition.getAuthorID(petition_id))[0].author_id;
-    if(author_id === null) throw("Not Found");
+    if(author_id === undefined) throw("Not Found");
     const req_auth_token = req.header("X-Authorization");
     if (req_auth_token === undefined) throw("Unauthorized");
     if(!(await Auth.authenticate(req_auth_token, author_id))) throw("Forbidden");

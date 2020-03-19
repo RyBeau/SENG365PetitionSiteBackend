@@ -149,7 +149,9 @@ exports.updateUser = async function (req, res) {
 exports.viewPhoto = async function (req, res) {
     try {
         const user_id = req.params.user_id;
-        const filename = (await User.getPhoto(user_id))[0].photo_filename;
+        let filename = await User.getPhoto(user_id);
+        if(filename.length > 0) {filename = filename[0].photo_filename}
+        else {throw("Not Found")}
         if(filename != null){
             res.status(200)
                 .sendFile("/storage/photos/"  + filename, {root: process.cwd()});
