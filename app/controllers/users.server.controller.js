@@ -1,6 +1,7 @@
 const User = require('../models/users.server.model');
 const Auth = require("../middleware/userAuth.middleware");
 const Error = require("../middleware/error.middleware");
+const Password = require("../middleware/password.middleware");
 const fs = require('fs');
 
 async function checkEmail(email){
@@ -15,8 +16,9 @@ exports.register = async function (req, res) {
     try {
         const name = req.body.name;
         const email = req.body.email;
-        const password = req.body.password;
+        let password = req.body.password;
         if (password != null && await checkEmail(email) && name != null) {
+            password = await Password.hash(password);
             const result = await User.insert(name, email, password, req.body.city, req.body.country);
             res.status(201)
                 .send({"userId":result.insertId});
@@ -37,7 +39,7 @@ exports.login = async function (req, res) {
             let queryResult = await User.getPass(email);
             const dbPassword = queryResult[0].password;
             const user_id = queryResult[0].user_id;
-            if(password === dbPassword){
+            if(await Password.validate(password, dbPassword)){
                 let token = Math.random(32).toString().substring(7);
                 await User.setAuth(email, token);
                 res.status(200)
@@ -105,7 +107,7 @@ async function checkPassword(req, email, password, currentPassword, dbPassword, 
         email = originalUser.email;
     }
     if (password != undefined) {
-        if (currentPassword !== dbPassword){
+        if (!(await Password.validate(currentPassword, dbPassword))){
             throw("Forbidden");
         }
     } else if (req.hasOwnProperty('password')) {
@@ -129,7 +131,7 @@ exports.updateUser = async function (req, res) {
             const city = req.body.city === undefined ? originalUser.city: req.body.city;
             const country = req.body.country === undefined ? originalUser.country: req.body.country;
             let email = req.body.email;
-            let password = req.body.password;
+            let password = await Password.hash(req.body.password);
             let currentPassword = req.body.currentPassword;
             [password, email] = await checkPassword(req, email, password, dbPassword, currentPassword, originalUser);
             await User.updateUser(name, email, password, city, country, user_id);
