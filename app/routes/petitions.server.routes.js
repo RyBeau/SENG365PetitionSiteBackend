@@ -10,4 +10,11 @@ module.exports = function (app) {
         .get(petitions.viewOne)
         .patch(petitions.updatePetition)
         .delete(petitions.deletePetition);
+    app.route(app.rootUrl + "/petitions/:petition_id/photo")
+        .get(petitions.viewPhoto)
+        .put(petitions.addPhoto);
+    app.route(app.rootUrl + "/petitions/:petition_id/signatures")
+        .get()
+        .post()
+        .delete();
 };

@@ -67,3 +67,17 @@ exports.getPetitionCategoryID = async function (petition_id) {
     const [result, _] = await connection.query(q, petition_id);
     return result;
 };
+
+exports.getPhoto = async function (petition_id) {
+    const connection = await db.getPool();
+    const q = "SELECT photo_filename FROM Petition WHERE petition_id = (?)";
+    const [result, _] = await connection.query(q, petition_id);
+    return result;
+};
+
+exports.setPhoto = async function (petition_id, photo_filename) {
+    const values = [photo_filename, petition_id];
+    const connection = db.getPool();
+    const q = "UPDATE Petition SET photo_filename = (?) WHERE petition_id = (?)";
+    await connection.query(q, values);
+};

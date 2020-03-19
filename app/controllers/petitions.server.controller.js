@@ -1,6 +1,7 @@
 const Petition = require('../models/petitions.server.model');
 const Error = require('../middleware/error.middleware');
 const Auth = require('../middleware/userAuth.middleware');
+const fs = require('fs');
 
 exports.viewAll = async function (req, res) {
     // TODO
@@ -113,6 +114,70 @@ exports.getCategories = async function (req, res) {
         const categories = (await Petition.viewCategories());
         res.status(200)
             .send(categories);
+    } catch (err) {
+        Error.errorOccurred(err, res);
+    }
+};
+
+exports.viewPhoto = async function (req, res) {
+    try {
+        const user_id = req.params.petition_id;
+        const filename = (await Petition.getPhoto(user_id))[0].photo_filename;
+        if(filename != null){
+            res.status(200)
+                .sendFile("/storage/photos/"  + filename, {root: process.cwd()});
+        } else {
+            throw("Not Found");
+        }
+    } catch (err){
+        Error.errorOccurred(err, res);
+    }
+};
+
+function getContentType (typeHeader){
+    switch (typeHeader){
+        case "image/png":
+            return ".png";
+        case "image/jpeg":
+            return ".jpeg";
+        case "image/gif":
+            return ".gif";
+        default:
+            throw("Bad Request");
+    }
+}
+
+async function photoChecks (req) {
+    const petition_id = req.params.petition_id;
+    const author_id = (await Petition.getAuthorID(petition_id))[0].author_id;
+    if(author_id === null) throw("Not Found");
+    const req_auth_token = req.header("X-Authorization");
+    if (req_auth_token === undefined) throw("Unauthorized");
+    if(!(await Auth.authenticate(req_auth_token, author_id))) throw("Forbidden");
+    return petition_id;
+}
+
+exports.addPhoto =  async function (req, res) {
+    try{
+        const petition_id = await photoChecks(req);
+        const path = process.cwd() + "/storage/photos/"
+        const contentType = getContentType(req.header("Content-Type"));
+        const photo = req.body;
+        const newFilename = "petition" + petition_id + contentType;
+        const oldFilename = (await Petition.getPhoto(petition_id))[0].photo_filename;
+        if (photo === undefined) throw("Bad Request");
+        if (oldFilename != null){
+            await fs.unlink(path + oldFilename, (err) =>{if (err) throw(err);});
+            await fs.writeFile(path + newFilename, photo, "binary",(err) => {if(err) throw(err);});
+            await Petition.setPhoto(petition_id, newFilename);
+            res.status(200)
+                .send("OK");
+        } else {
+            await fs.writeFile(path + newFilename, photo, "binary",(err) =>{if (err) throw(err);});
+            await Petition.setPhoto(petition_id, newFilename);
+            res.status(201)
+                .send("Created");
+        }
     } catch (err) {
         Error.errorOccurred(err, res);
     }
