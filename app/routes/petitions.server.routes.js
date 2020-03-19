@@ -16,5 +16,5 @@ module.exports = function (app) {
     app.route(app.rootUrl + "/petitions/:petition_id/signatures")
         .get(petitions.getSignatures)
         .post(petitions.addSignature)
-        .delete();
+        .delete(petitions.removeSignature);
 };

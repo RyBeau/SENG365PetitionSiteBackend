@@ -101,6 +101,17 @@ exports.getSignatures = async function (petition_id) {
     return result;
 };
 
+exports.petitionClosed = async function(petition_id){
+    const connection = await db.getPool();
+    const q = "SELECT closing_date FROM Petition WHERE petition_id = (?)";
+    const [result, _] = await connection.query(q, petition_id);
+    if((new Date(result[0].closing_date)) > (new Date())){
+        return true;
+    } else {
+        return false;
+    }
+};
+
 exports.hasSigned = async function (user_id, petition_id){
     const values = [petition_id, user_id];
     const connection = await db.getPool();
@@ -118,4 +129,11 @@ exports.signPetition = async function (petition_id, user_id, signed_date){
     const connection = await db.getPool();
     const q = "INSERT INTO Signature (petition_id, signatory_id, signed_date) VALUES (?)";
     await connection.query(q, [values]);
+};
+
+exports.removeSignature = async function (petition_id, user_id) {
+    const values = [petition_id, user_id];
+    const connection = await db.getPool();
+    const q = "DELETE FROM Signature WHERE petition_id = (?) AND signatory_id = (?)";
+    await connection.query(q, values);
 };

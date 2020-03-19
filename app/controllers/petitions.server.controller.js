@@ -211,10 +211,32 @@ exports.addSignature = async function (req, res) {
         let user_id = await User.getUserFromAuth(req_auth_token);
         if(user_id.length === 0) throw("Forbidden");
         user_id = user_id[0].user_id;
-        if(await Petition.hasSigned(user_id, petition_id)) throw("Forbidden");
+        if(await Petition.petitionClosed(petition_id) || await Petition.hasSigned(user_id, petition_id)) throw("Forbidden");
         await Petition.signPetition(petition_id, user_id, signed_date);
         res.status(201)
             .send("OK");
+    } catch (err) {
+        Error.errorOccurred(err, res);
+    }
+};
+
+exports.removeSignature = async function (req, res) {
+    try{
+        const petition_id = req.params.petition_id;
+        const req_auth_token = req.header("X-Authorization");
+        if (req_auth_token === undefined) throw("Unauthorized");
+        if(!(await Petition.petitionExists(petition_id))) throw("Not Found");
+        let user_id = await User.getUserFromAuth(req_auth_token);
+        if(user_id.length === 0) throw("Forbidden");
+        if(await Petition.petitionClosed(petition_id) ||
+            !(await Petition.hasSigned(user_id, petition_id)) ||
+            (await Petition.getAuthorID(petition_id))[0].author_id === user_id){
+            throw("Forbidden");
+        } else {
+            await Petition.removeSignature(petition_id, user_id);
+            res.status(200)
+                .send("OK");
+        }
     } catch (err) {
         Error.errorOccurred(err, res);
     }
