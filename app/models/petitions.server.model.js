@@ -58,8 +58,7 @@ exports.updatePetition = async function (petition_id, title, description, catego
     const connection = await db.getPool();
     const values = [title, description, category_id, closing_date, petition_id];
     const q = "UPDATE Petition SET title = (?), description = (?), category_id = (?), closing_date = (?) WHERE petition_id = (?)";
-    const [result, _] = await connection.query(q, values);
-    return result;
+    await connection.query(q, values);
 };
 
 exports.getPetitionCategoryID = async function (petition_id) {
