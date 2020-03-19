@@ -72,6 +72,7 @@ exports.setPhoto = async function (user_id, photo_filename) {
     const connection = await db.getPool();
     const values = [photo_filename, user_id];
     const q = "UPDATE User SET photo_filename = (?) WHERE user_id = (?)";
+    await connection.query(q, values);
 };
 
 exports.countUser = async function (user_id) {
