@@ -211,7 +211,7 @@ exports.addSignature = async function (req, res) {
         let user_id = await User.getUserFromAuth(req_auth_token);
         if(user_id.length === 0) throw("Forbidden");
         user_id = user_id[0].user_id;
-        if(await Petition.hasSigned(user_id)) throw("Forbidden");
+        if(await Petition.hasSigned(user_id, petition_id)) throw("Forbidden");
         await Petition.signPetition(petition_id, user_id, signed_date);
         res.status(201)
             .send("OK");
