@@ -131,6 +131,7 @@ exports.updateUser = async function (req, res) {
             const name = req.body.name === undefined ? originalUser.name: req.body.name;
             const city = req.body.city === undefined ? originalUser.city: req.body.city;
             const country = req.body.country === undefined ? originalUser.country: req.body.country;
+            let email = req.body.email;
             let password = await Password.hash(req.body.password);
             let currentPassword = req.body.currentPassword;
             [password, email] = await checkPassword(req, email, password, currentPassword, dbPassword, originalUser);
