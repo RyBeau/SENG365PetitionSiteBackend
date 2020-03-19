@@ -105,7 +105,7 @@ exports.petitionClosed = async function(petition_id){
     const connection = await db.getPool();
     const q = "SELECT closing_date FROM Petition WHERE petition_id = (?)";
     const [result, _] = await connection.query(q, petition_id);
-    if((new Date(result[0].closing_date)) > (new Date())){
+    if((Date(result[0].closing_date)) > (new Date())){
         return true;
     } else {
         return false;

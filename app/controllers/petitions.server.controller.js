@@ -228,6 +228,7 @@ exports.removeSignature = async function (req, res) {
         if(!(await Petition.petitionExists(petition_id))) throw("Not Found");
         let user_id = await User.getUserFromAuth(req_auth_token);
         if(user_id.length === 0) throw("Forbidden");
+        user_id = user_id[0].user_id;
         if(await Petition.petitionClosed(petition_id) ||
             !(await Petition.hasSigned(user_id, petition_id)) ||
             (await Petition.getAuthorID(petition_id))[0].author_id === user_id){
