@@ -1,5 +1,16 @@
 const db = require('../../config/db');
 
+exports.petitionExists = async function (petition_id) {
+    const connection = await db.getPool();
+    const q = "SELECT count(*) AS count FROM Petition WHERE petition_id = (?)"
+    const [result, _] = await connection.query(q, petition_id);
+    if(result[0].count > 0){
+        return true;
+    } else {
+        return false;
+    }
+};
+
 exports.getPetitions = async function () {
     const connection = db.getPool();
     const q = "SELECT * FROM Petition ORDER BY "
@@ -77,7 +88,15 @@ exports.getPhoto = async function (petition_id) {
 
 exports.setPhoto = async function (petition_id, photo_filename) {
     const values = [photo_filename, petition_id];
-    const connection = db.getPool();
+    const connection = await db.getPool();
     const q = "UPDATE Petition SET photo_filename = (?) WHERE petition_id = (?)";
     await connection.query(q, values);
+};
+
+exports.getSignatures = async function (petition_id) {
+    const connection = await db.getPool();
+    const q = "SELECT signatory_id AS signatoryId, name, city, country, signed_date AS signedDate FROM Signature JOIN " +
+        "User ON signatory_id = user_id WHERE petition_id = (?) ORDER BY signed_date";
+    const [result, _] = await connection.query(q, petition_id);
+    return result;
 };

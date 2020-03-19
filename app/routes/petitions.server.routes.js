@@ -14,7 +14,7 @@ module.exports = function (app) {
         .get(petitions.viewPhoto)
         .put(petitions.addPhoto);
     app.route(app.rootUrl + "/petitions/:petition_id/signatures")
-        .get()
+        .get(petitions.getSignatures)
         .post()
         .delete();
 };

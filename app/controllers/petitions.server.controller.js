@@ -151,9 +151,8 @@ function getContentType (typeHeader){
 
 async function photoChecks (req) {
     const petition_id = req.params.petition_id;
-    let author_id = await Petition.getAuthorID(petition_id);
-    if(author_id.length > 0) {author_id = author_id[0].author_id}
-    else {throw("Not Found")}
+    if(!(await Petition.petitionExists(petition_id))) throw("Not Found");
+    let author_id = (await Petition.getAuthorID(petition_id))[0].author_id;
     const req_auth_token = req.header("X-Authorization");
     if (req_auth_token === undefined) throw("Unauthorized");
     if(!(await Auth.authenticate(req_auth_token, author_id))) throw("Forbidden");
@@ -168,7 +167,7 @@ exports.addPhoto =  async function (req, res) {
         const photo = req.body;
         const newFilename = "petition" + petition_id + contentType;
         const oldFilename = (await Petition.getPhoto(petition_id))[0].photo_filename;
-        if (photo === undefined) throw("Bad Request");
+        if (photo.length === 0) throw("Bad Request");
         if (oldFilename != null){
             await fs.unlink(path + oldFilename, (err) =>{if (err) throw(err);});
             await fs.writeFile(path + newFilename, photo, "binary",(err) => {if(err) throw(err);});
@@ -180,6 +179,21 @@ exports.addPhoto =  async function (req, res) {
             await Petition.setPhoto(petition_id, newFilename);
             res.status(201)
                 .send("Created");
+        }
+    } catch (err) {
+        Error.errorOccurred(err, res);
+    }
+};
+
+exports.getSignatures = async function (req, res) {
+    try {
+        const petition_id = req.params.petition_id;
+        if(await Petition.petitionExists(petition_id)) {
+            const result = (await Petition.getSignatures(petition_id));
+            res.status(200)
+                .send(result);
+        } else {
+            throw("Not Found");
         }
     } catch (err) {
         Error.errorOccurred(err, res);

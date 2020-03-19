@@ -193,7 +193,7 @@ exports.addPhoto =  async function (req, res) {
         const photo = req.body;
         const newFilename = "user_" + user_id + contentType;
         const oldFilename = (await User.getPhoto(user_id))[0].photo_filename;
-        if (photo === undefined) throw("Bad Request");
+        if (photo.length === 0) throw("Bad Request");
         if (oldFilename != null){
             await fs.unlink(path + oldFilename, (err) =>{if (err) throw(err);});
             await fs.writeFile(path + newFilename, photo, "binary",(err) => {if(err) throw(err);});
