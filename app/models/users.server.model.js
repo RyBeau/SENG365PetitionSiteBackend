@@ -30,7 +30,8 @@ exports.setAuth = async function (email, token) {
     const connection = await db.getPool();
     const values = [token, email];
     const q = "UPDATE User SET auth_token = (?) where email = (?)";
-    await connection.query(q, values);
+    const [result, _] = await connection.query(q, values);
+    return result;
 };
 
 exports.checkAuthUserId = async function (user_id) {
@@ -71,7 +72,6 @@ exports.setPhoto = async function (user_id, photo_filename) {
     const connection = await db.getPool();
     const values = [photo_filename, user_id];
     const q = "UPDATE User SET photo_filename = (?) WHERE user_id = (?)";
-    await connection.query(q, values);
 };
 
 exports.countUser = async function (user_id) {
