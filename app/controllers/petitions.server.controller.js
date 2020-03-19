@@ -1,6 +1,7 @@
 const Petition = require('../models/petitions.server.model');
 const Error = require('../middleware/error.middleware');
 const Auth = require('../middleware/userAuth.middleware');
+const User = require('../models/users.server.model');
 const fs = require('fs');
 
 exports.viewAll = async function (req, res) {
@@ -195,6 +196,25 @@ exports.getSignatures = async function (req, res) {
         } else {
             throw("Not Found");
         }
+    } catch (err) {
+        Error.errorOccurred(err, res);
+    }
+};
+
+exports.addSignature = async function (req, res) {
+    try{
+        const petition_id = req.params.petition_id;
+        const req_auth_token = req.header("X-Authorization");
+        const signed_date = getISODate(new Date());
+        if (req_auth_token === undefined) throw("Unauthorized");
+        if(!(await Petition.petitionExists(petition_id))) throw("Not Found");
+        let user_id = await User.getUserFromAuth(req_auth_token);
+        if(user_id.length === 0) throw("Forbidden");
+        user_id = user_id[0].user_id;
+        if(await Petition.hasSigned(user_id)) throw("Forbidden");
+        await Petition.signPetition(petition_id, user_id, signed_date);
+        res.status(201)
+            .send("OK");
     } catch (err) {
         Error.errorOccurred(err, res);
     }

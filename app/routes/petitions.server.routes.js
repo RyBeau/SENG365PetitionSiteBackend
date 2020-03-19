@@ -15,6 +15,6 @@ module.exports = function (app) {
         .put(petitions.addPhoto);
     app.route(app.rootUrl + "/petitions/:petition_id/signatures")
         .get(petitions.getSignatures)
-        .post()
+        .post(petitions.addSignature)
         .delete();
 };

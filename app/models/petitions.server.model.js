@@ -2,7 +2,7 @@ const db = require('../../config/db');
 
 exports.petitionExists = async function (petition_id) {
     const connection = await db.getPool();
-    const q = "SELECT count(*) AS count FROM Petition WHERE petition_id = (?)"
+    const q = "SELECT count(*) AS count FROM Petition WHERE petition_id = (?)";
     const [result, _] = await connection.query(q, petition_id);
     if(result[0].count > 0){
         return true;
@@ -99,4 +99,23 @@ exports.getSignatures = async function (petition_id) {
         "User ON signatory_id = user_id WHERE petition_id = (?) ORDER BY signed_date";
     const [result, _] = await connection.query(q, petition_id);
     return result;
+};
+
+exports.hasSigned = async function (user_id, petition_id){
+    const values = [petition_id, user_id];
+    const connection = await db.getPool();
+    const q = "SELECT count(*) AS count FROM Signature WHERE petition_id = (?) AND signatory_id = (?)";
+    const [result, _] = await connection.query(q, values);
+    if(result[0].count > 0){
+        return true;
+    } else {
+        return false;
+    }
+};
+
+exports.signPetition = async function (petition_id, user_id, signed_date){
+    const values = [petition_id, user_id, signed_date];
+    const connection = await db.getPool();
+    const q = "INSERT INTO Signature (petition_id, signatory_id, signed_date) VALUES (?)";
+    await connection.query(q, [values]);
 };
