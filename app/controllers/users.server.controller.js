@@ -107,7 +107,8 @@ async function checkPassword(req, email, password, currentPassword, dbPassword, 
         email = originalUser.email;
     }
     if (password != undefined) {
-        if (!(await Password.validate(currentPassword, dbPassword))){
+        const result = await Password.validate(currentPassword, dbPassword);
+        if (!result){
             throw("Forbidden");
         }
     } else if (req.hasOwnProperty('password')) {
@@ -130,10 +131,9 @@ exports.updateUser = async function (req, res) {
             const name = req.body.name === undefined ? originalUser.name: req.body.name;
             const city = req.body.city === undefined ? originalUser.city: req.body.city;
             const country = req.body.country === undefined ? originalUser.country: req.body.country;
-            let email = req.body.email;
             let password = await Password.hash(req.body.password);
             let currentPassword = req.body.currentPassword;
-            [password, email] = await checkPassword(req, email, password, dbPassword, currentPassword, originalUser);
+            [password, email] = await checkPassword(req, email, password, currentPassword, dbPassword, originalUser);
             await User.updateUser(name, email, password, city, country, user_id);
             res.status(200)
                 .send("OK");
