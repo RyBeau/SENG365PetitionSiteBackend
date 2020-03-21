@@ -13,8 +13,8 @@ exports.petitionExists = async function (petition_id) {
 
 exports.getPetitions = async function (startIndex) {
     const connection = await db.getPool();
-    const q = "SELECT Petition.petition_id AS petitionId, title, name, count(signatory_id) AS signatureCount, category_id, author_id  FROM ((Petition JOIN User ON user_id = author_id)" +
-        " LEFT OUTER JOIN Signature ON Petition.petition_id = Signature.petition_id) WHERE Petition.petition_id >= (?) GROUP BY Petition.petition_id ORDER BY signatureCount DESC;";
+    const q = "SELECT Petition.petition_id AS petitionId, title, Category.name AS category, User.name, count(signatory_id) AS signatureCount, Petition.category_id, author_id  FROM (((Petition JOIN User ON user_id = author_id)" +
+        " JOIN Category on Petition.category_id = Category.category_id)LEFT OUTER JOIN Signature ON Petition.petition_id = Signature.petition_id) WHERE Petition.petition_id >= (?) GROUP BY Petition.petition_id ORDER BY signatureCount DESC;";
     const [result, _] = await connection.query(q, startIndex + 1);
     return result;
 };

@@ -62,8 +62,11 @@ async function processPetitions (petitions, req) {
         else if (petitions[i].category_id != parameters.categoryId && parameters.categoryId != undefined) {
             petitions.splice(i, 1);
         }
-        else if (!petitions[i].title.includes(parameters.q) && parameters.q != undefined) {
+        else if (!petitions[i].title.toLowerCase().includes(parameters.q.toLowerCase()) && parameters.q != undefined) {
             petitions.splice(i, 1);
+        } else {
+            delete petitions[i].author_id;
+            delete petitions[i].category_id;
         }
     }
     petitions = sortPetition(petitions, parameters.sortBy);
