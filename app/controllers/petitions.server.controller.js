@@ -4,11 +4,85 @@ const Auth = require('../middleware/userAuth.middleware');
 const User = require('../models/users.server.model');
 const fs = require('fs');
 
+const _SORTS = ["ALPHABETICAL_ASC","ALPHABETICAL_DESC","SIGNATURES_ASC","SIGNATURES_DESC"];
+
+async function getParameters (req) {
+    const count = req.body.count === undefined ? undefined : req.body.count;
+    if(req.body.hasOwnProperty("count") && (count === undefined)) throw ("Bad Request");
+    const q = req.body.q === undefined ? undefined : req.body.q;
+    if(req.body.hasOwnProperty("q") && (q === undefined || q.length === 0)) throw ("Bad Request");
+    const categoryId = req.body.categoryId === undefined ? undefined : req.body.categoryId;
+    if(req.body.hasOwnProperty("categoryId") && (categoryId === undefined)) {throw ("Bad Request")}
+    if((categoryId !== undefined) &&!(await Petition.checkCategory(categoryId))) throw("Bad Request");
+    const authorId = req.body.authorId === undefined ? undefined : req.body.authorId;
+    if(req.body.hasOwnProperty("authorId") && (authorId === undefined)) throw ("Bad Request");
+    if((authorId !== undefined) && (await User.countUser(req.body.authorId))[0].count === 0) throw("Bad Request");
+    const sortBy = req.body.sortBy === undefined ? undefined : req.body.sortBy;
+    if(req.body.hasOwnProperty("sortBy") && (sortBy === undefined || sortBy.length === 0)) throw ("Bad Request");
+    if(!_SORTS.includes(sortBy) && sortBy !== undefined) throw("Bad Request");
+    return {"categoryId":categoryId, "authorId":authorId, "count":count, "q":q,"sortBy":sortBy};
+}
+
+function alphabeticalSort(a, b){
+        let titleA = a.title.toUpperCase();
+        let titleB = b.title.toUpperCase();
+        if(titleA < titleB){
+            return -1
+        } else if (titleB < titleA){
+            return 1
+        } else{
+            return 0;
+        }
+}
+
+function sortPetition(petitions, sortBy){
+    switch (sortBy) {
+        case _SORTS[0]:
+            petitions = petitions.sort(alphabeticalSort);
+            return petitions;
+        case _SORTS[1]:
+            petitions = petitions.sort(alphabeticalSort).reverse();
+            return petitions;
+        case _SORTS[3]:
+            petitions = petitions.sort(function(a, b){
+                return a.signatureCount - b.signatureCount;
+            });
+            return petitions;
+        default:
+            return petitions;
+    }
+}
+
+async function processPetitions (petitions, req) {
+    const parameters = await getParameters(req);
+    for (let i = petitions.length - 1; i > -1; i--) {
+        if (petitions[i].author_id != parameters.authorId && parameters.authorId != undefined) {
+            petitions.splice(i, 1);
+        }
+        else if (petitions[i].category_id != parameters.categoryId && parameters.categoryId != undefined) {
+            petitions.splice(i, 1);
+        }
+        else if (!petitions[i].title.includes(parameters.q) && parameters.q != undefined) {
+            petitions.splice(i, 1);
+        }
+    }
+    petitions = sortPetition(petitions, parameters.sortBy);
+    if(parameters.count != undefined) petitions = petitions.slice(0, parameters.count);
+    return petitions;
+}
+
 exports.viewAll = async function (req, res) {
-    // TODO
-    console.log("Testing")
-    res.status(500)
-        .send("UNFINISHED")
+    try{
+        const startIndex = req.body.startIndex === undefined ? 0 : req.body.startIndex;
+        let petitions = await Petition.getPetitions(startIndex);
+        if(req.body){
+            petitions = await processPetitions(petitions, req);
+        }
+        res.status(200)
+            .send(petitions);
+    } catch (err){
+        Error.errorOccurred(err, res);
+    }
 };
 
 exports.viewOne = async function (req, res) {

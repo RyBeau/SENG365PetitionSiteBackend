@@ -11,9 +11,12 @@ exports.petitionExists = async function (petition_id) {
     }
 };
 
-exports.getPetitions = async function () {
-    const connection = db.getPool();
-    const q = "SELECT * FROM Petition ORDER BY "
+exports.getPetitions = async function (startIndex) {
+    const connection = await db.getPool();
+    const q = "SELECT Petition.petition_id AS petitionId, title, name, count(signatory_id) AS signatureCount, category_id, author_id  FROM ((Petition JOIN User ON user_id = author_id)" +
+        " LEFT OUTER JOIN Signature ON Petition.petition_id = Signature.petition_id) WHERE Petition.petition_id >= (?) GROUP BY Petition.petition_id ORDER BY signatureCount DESC;";
+    const [result, _] = await connection.query(q, startIndex + 1);
+    return result;
 };
 
 exports.getPetitionFromID = async function (petitionID) {
