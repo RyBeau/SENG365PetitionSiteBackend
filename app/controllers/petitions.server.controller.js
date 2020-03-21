@@ -82,10 +82,13 @@ exports.viewAll = async function (req, res) {
     try{
         const startIndex = req.query.startIndex === undefined ? 0 : Number(req.query.startIndex);
         let petitions = await Petition.getPetitions(startIndex);
-        console.log(petitions);
-        console.log(req.query);
-        if(Object.keys(req.query).length > 0){
+        if(Object.keys(req.query).length > 1 && startIndex != undefined){
             petitions = await processPetitions(petitions, req);
+        } else {
+            for (let i = petitions.length - 1; i > -1; i--) {
+                delete petitions[i].author_id;
+                delete petitions[i].category_id;
+            }
         }
         res.status(200)
             .send(petitions);
