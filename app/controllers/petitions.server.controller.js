@@ -7,6 +7,7 @@ const fs = require('fs');
 const _SORTS = ["ALPHABETICAL_ASC","ALPHABETICAL_DESC","SIGNATURES_ASC","SIGNATURES_DESC"];
 
 async function getParameters (req) {
+    const startIndex = req.query.startIndex === undefined ? 0 : Number(req.query.startIndex);
     const count = req.query.count === undefined ? undefined : Number(req.query.count);
     if(req.query.hasOwnProperty("count") && (count === undefined)) throw ("Bad Request");
     let q = req.query.q === undefined ? undefined : req.query.q;
@@ -24,7 +25,7 @@ async function getParameters (req) {
     const sortBy = req.query.sortBy === undefined ? undefined : req.query.sortBy;
     if(req.query.hasOwnProperty("sortBy") && (sortBy === undefined || sortBy.length === 0)) throw ("Bad Request");
     if(!_SORTS.includes(sortBy) && sortBy !== undefined) throw("Bad Request");
-    return {"categoryId":categoryId, "authorId":authorId, "count":count, "q":q,"sortBy":sortBy};
+    return {"startIndex": startIndex,"categoryId":categoryId, "authorId":authorId, "count":count, "q":q,"sortBy":sortBy};
 }
 
 function alphabeticalSort(a, b){
@@ -62,8 +63,9 @@ async function processPetitions (petitions, req) {
     for (let i = petitions.length - 1; i > -1; i--) {
         if (petitions[i].author_id != parameters.authorId && parameters.authorId != undefined) {
             petitions.splice(i, 1);
-        }
-        else if (petitions[i].category_id != parameters.categoryId && parameters.categoryId != undefined) {
+        }else if (petitions[i].category_id != parameters.categoryId && parameters.categoryId != undefined) {
+            petitions.splice(i, 1);
+        } else if (petitions[i].petitionId <= parameters.startIndex && parameters.startIndex != undefined) {
             petitions.splice(i, 1);
         }
         else if (!petitions[i].title.toLowerCase().includes(parameters.q) && parameters.q != undefined) {
@@ -80,9 +82,8 @@ async function processPetitions (petitions, req) {
 
 exports.viewAll = async function (req, res) {
     try{
-        const startIndex = req.query.startIndex === undefined ? 0 : Number(req.query.startIndex);
-        let petitions = await Petition.getPetitions(startIndex);
-        if(Object.keys(req.query).length >= 1 && startIndex != undefined){
+        let petitions = await Petition.getPetitions();
+        if(Object.keys(req.query).length > 0){
             petitions = await processPetitions(petitions, req);
         } else {
             for (let i = petitions.length - 1; i > -1; i--) {
