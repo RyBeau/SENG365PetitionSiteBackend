@@ -7,7 +7,7 @@ const fs = require('fs');
 const _SORTS = ["ALPHABETICAL_ASC","ALPHABETICAL_DESC","SIGNATURES_ASC","SIGNATURES_DESC"];
 
 async function getParameters (req) {
-    const count = req.query.count === undefined ? undefined : req.query.count;
+    const count = req.query.count === undefined ? undefined : Number(req.query.count);
     if(req.query.hasOwnProperty("count") && (count === undefined)) throw ("Bad Request");
     let q = req.query.q === undefined ? undefined : req.query.q;
     if(req.query.hasOwnProperty("q") && (q === undefined || q.length === 0)){
@@ -15,10 +15,10 @@ async function getParameters (req) {
     } else if(q != undefined) {
         q = q.toLowerCase();
     }
-    const categoryId = req.query.categoryId === undefined ? undefined : req.query.categoryId;
+    const categoryId = req.query.categoryId === undefined ? undefined : Number(req.query.categoryId);
     if(req.query.hasOwnProperty("categoryId") && (categoryId === undefined)) {throw ("Bad Request")}
     if((categoryId !== undefined) &&!(await Petition.checkCategory(categoryId))) throw("Bad Request");
-    const authorId = req.query.authorId === undefined ? undefined : req.query.authorId;
+    const authorId = req.query.authorId === undefined ? undefined : Number(req.query.authorId);
     if(req.query.hasOwnProperty("authorId") && (authorId === undefined)) throw ("Bad Request");
     if((authorId !== undefined) && (await User.countUser(req.query.authorId))[0].count === 0) throw("Bad Request");
     const sortBy = req.query.sortBy === undefined ? undefined : req.query.sortBy;
@@ -80,8 +80,9 @@ async function processPetitions (petitions, req) {
 
 exports.viewAll = async function (req, res) {
     try{
-        const startIndex = req.query.startIndex === undefined ? 0 : req.query.startIndex;
+        const startIndex = req.query.startIndex === undefined ? 0 : Number(req.query.startIndex);
         let petitions = await Petition.getPetitions(startIndex);
+        console.log(petitions);
         console.log(req.query);
         if(Object.keys(req.query).length > 0){
             petitions = await processPetitions(petitions, req);
