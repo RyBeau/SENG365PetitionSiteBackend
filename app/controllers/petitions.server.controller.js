@@ -7,22 +7,22 @@ const fs = require('fs');
 const _SORTS = ["ALPHABETICAL_ASC","ALPHABETICAL_DESC","SIGNATURES_ASC","SIGNATURES_DESC"];
 
 async function getParameters (req) {
-    const count = req.body.count === undefined ? undefined : req.body.count;
-    if(req.body.hasOwnProperty("count") && (count === undefined)) throw ("Bad Request");
-    let q = req.body.q === undefined ? undefined : req.body.q;
-    if(req.body.hasOwnProperty("q") && (q === undefined || q.length === 0)){
+    const count = req.query.count === undefined ? undefined : req.query.count;
+    if(req.query.hasOwnProperty("count") && (count === undefined)) throw ("Bad Request");
+    let q = req.query.q === undefined ? undefined : req.query.q;
+    if(req.query.hasOwnProperty("q") && (q === undefined || q.length === 0)){
         throw ("Bad Request");
     } else if(q != undefined) {
         q = q.toLowerCase();
     }
-    const categoryId = req.body.categoryId === undefined ? undefined : req.body.categoryId;
-    if(req.body.hasOwnProperty("categoryId") && (categoryId === undefined)) {throw ("Bad Request")}
+    const categoryId = req.query.categoryId === undefined ? undefined : req.query.categoryId;
+    if(req.query.hasOwnProperty("categoryId") && (categoryId === undefined)) {throw ("Bad Request")}
     if((categoryId !== undefined) &&!(await Petition.checkCategory(categoryId))) throw("Bad Request");
-    const authorId = req.body.authorId === undefined ? undefined : req.body.authorId;
-    if(req.body.hasOwnProperty("authorId") && (authorId === undefined)) throw ("Bad Request");
-    if((authorId !== undefined) && (await User.countUser(req.body.authorId))[0].count === 0) throw("Bad Request");
-    const sortBy = req.body.sortBy === undefined ? undefined : req.body.sortBy;
-    if(req.body.hasOwnProperty("sortBy") && (sortBy === undefined || sortBy.length === 0)) throw ("Bad Request");
+    const authorId = req.query.authorId === undefined ? undefined : req.query.authorId;
+    if(req.query.hasOwnProperty("authorId") && (authorId === undefined)) throw ("Bad Request");
+    if((authorId !== undefined) && (await User.countUser(req.query.authorId))[0].count === 0) throw("Bad Request");
+    const sortBy = req.query.sortBy === undefined ? undefined : req.query.sortBy;
+    if(req.query.hasOwnProperty("sortBy") && (sortBy === undefined || sortBy.length === 0)) throw ("Bad Request");
     if(!_SORTS.includes(sortBy) && sortBy !== undefined) throw("Bad Request");
     return {"categoryId":categoryId, "authorId":authorId, "count":count, "q":q,"sortBy":sortBy};
 }
@@ -80,10 +80,10 @@ async function processPetitions (petitions, req) {
 
 exports.viewAll = async function (req, res) {
     try{
-        const startIndex = req.body.startIndex === undefined ? 0 : req.body.startIndex;
+        const startIndex = req.query.startIndex === undefined ? 0 : req.query.startIndex;
         let petitions = await Petition.getPetitions(startIndex);
-        console.log();
-        if(Object.keys(req.body).length > 0){
+        console.log(req.query);
+        if(Object.keys(req.query).length > 0){
             petitions = await processPetitions(petitions, req);
         }
         res.status(200)
