@@ -9,8 +9,12 @@ const _SORTS = ["ALPHABETICAL_ASC","ALPHABETICAL_DESC","SIGNATURES_ASC","SIGNATU
 async function getParameters (req) {
     const count = req.body.count === undefined ? undefined : req.body.count;
     if(req.body.hasOwnProperty("count") && (count === undefined)) throw ("Bad Request");
-    const q = req.body.q === undefined ? undefined : req.body.q;
-    if(req.body.hasOwnProperty("q") && (q === undefined || q.length === 0)) throw ("Bad Request");
+    let q = req.body.q === undefined ? undefined : req.body.q;
+    if(req.body.hasOwnProperty("q") && (q === undefined || q.length === 0)){
+        throw ("Bad Request");
+    } else{
+        q = q.toLowerCase();
+    }
     const categoryId = req.body.categoryId === undefined ? undefined : req.body.categoryId;
     if(req.body.hasOwnProperty("categoryId") && (categoryId === undefined)) {throw ("Bad Request")}
     if((categoryId !== undefined) &&!(await Petition.checkCategory(categoryId))) throw("Bad Request");
@@ -62,7 +66,7 @@ async function processPetitions (petitions, req) {
         else if (petitions[i].category_id != parameters.categoryId && parameters.categoryId != undefined) {
             petitions.splice(i, 1);
         }
-        else if (!petitions[i].title.toLowerCase().includes(parameters.q.toLowerCase()) && parameters.q != undefined) {
+        else if (!petitions[i].title.toLowerCase().includes(parameters.q) && parameters.q != undefined) {
             petitions.splice(i, 1);
         } else {
             delete petitions[i].author_id;
@@ -78,7 +82,8 @@ exports.viewAll = async function (req, res) {
     try{
         const startIndex = req.body.startIndex === undefined ? 0 : req.body.startIndex;
         let petitions = await Petition.getPetitions(startIndex);
-        if(req.body){
+        console.log();
+        if(Object.keys(req.body).length > 0){
             petitions = await processPetitions(petitions, req);
         }
         res.status(200)
