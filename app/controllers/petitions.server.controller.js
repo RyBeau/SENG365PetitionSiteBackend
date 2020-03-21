@@ -12,7 +12,7 @@ async function getParameters (req) {
     let q = req.body.q === undefined ? undefined : req.body.q;
     if(req.body.hasOwnProperty("q") && (q === undefined || q.length === 0)){
         throw ("Bad Request");
-    } else{
+    } else if(q != undefined) {
         q = q.toLowerCase();
     }
     const categoryId = req.body.categoryId === undefined ? undefined : req.body.categoryId;
