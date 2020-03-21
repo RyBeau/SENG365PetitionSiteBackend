@@ -82,7 +82,7 @@ exports.viewAll = async function (req, res) {
     try{
         const startIndex = req.query.startIndex === undefined ? 0 : Number(req.query.startIndex);
         let petitions = await Petition.getPetitions(startIndex);
-        if(Object.keys(req.query).length > 1 && startIndex != undefined){
+        if(Object.keys(req.query).length >= 1 && startIndex != undefined){
             petitions = await processPetitions(petitions, req);
         } else {
             for (let i = petitions.length - 1; i > -1; i--) {
