@@ -22,7 +22,7 @@ exports.getUserFromAuth = async function (auth_token) {
     try {
         const user_id = (await User.getUserFromAuth(auth_token))[0].user_id;
         return user_id;
-    } catch {
+    } catch (err) {
         throw('Unauthorized');
     }
 };
