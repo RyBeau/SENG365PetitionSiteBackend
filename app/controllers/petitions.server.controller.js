@@ -65,8 +65,6 @@ async function processPetitions (petitions, req) {
             petitions.splice(i, 1);
         }else if (petitions[i].category_id != parameters.categoryId && parameters.categoryId != undefined) {
             petitions.splice(i, 1);
-        } else if (petitions[i].petitionId <= parameters.startIndex && parameters.startIndex != undefined) {
-            petitions.splice(i, 1);
         }
         else if (!petitions[i].title.toLowerCase().includes(parameters.q) && parameters.q != undefined) {
             petitions.splice(i, 1);
@@ -76,6 +74,7 @@ async function processPetitions (petitions, req) {
         }
     }
     petitions = sortPetition(petitions, parameters.sortBy);
+    if(parameters.startIndex != undefined) petitions = petitions.slice(parameters.startIndex, petitions.length);
     if(parameters.count != undefined) petitions = petitions.slice(0, parameters.count);
     return petitions;
 }
