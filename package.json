@@ -13,6 +13,7 @@
     "mz": "^2.7.0",
     "mysql2": "^2.1.0",
     "fs": "^0.0.1-security",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "crypto-random-string": "^3.2.0"
   }
 }

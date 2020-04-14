@@ -3,6 +3,7 @@ const Auth = require("../middleware/userAuth.middleware");
 const Error = require("../middleware/error.middleware");
 const Password = require("../middleware/password.middleware");
 const fs = require('fs');
+const crypto = require("crypto-random-string");
 
 async function checkEmail(email){
     let result = false;
@@ -40,7 +41,7 @@ exports.login = async function (req, res) {
             const dbPassword = queryResult[0].password;
             const user_id = queryResult[0].user_id;
             if(await Password.validate(password, dbPassword)){
-                let token = Math.random(32).toString().substring(7);
+                let token = cryptoRandomString({length: 20, type: "base64"});
                 await User.setAuth(email, token);
                 res.status(200)
                     .send({"userId": user_id, "token":token});
