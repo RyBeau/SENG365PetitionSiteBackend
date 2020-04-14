@@ -3,7 +3,7 @@ const Auth = require("../middleware/userAuth.middleware");
 const Error = require("../middleware/error.middleware");
 const Password = require("../middleware/password.middleware");
 const fs = require('fs');
-const crypto = require("crypto-random-string");
+const cryptoRandomString = require("crypto-random-string");
 
 async function checkEmail(email){
     let result = false;
