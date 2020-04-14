@@ -135,7 +135,7 @@ exports.addPetition = async function (req, res) {
         const user_id = await Auth.getUserFromAuth(req_auth_token);
         await checkPostRequest(user_id, title, description, category_id, created_date, closing_date);
         const result = await Petition.addPetition(title, description, user_id, category_id, created_date, closing_date);
-        await Petition.signPetition(result.insertId, user_id,getISODate(new Date()));
+        await Petition.signPetition(result.insertId, user_id, created_date);
         res.status(201)
             .send({"petitionId":result.insertId});
     } catch (err) {
