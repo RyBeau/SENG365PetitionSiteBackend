@@ -143,6 +143,15 @@ exports.addPetition = async function (req, res) {
     }
 };
 
+async function deletePetitionPhoto (petition_id){
+    const path = process.cwd() + "/storage/photos/";
+    const result = await Petition.getPhoto(petition_id);
+    if(result.length > 0) {
+        const filename = result[0].photo_filename
+        await fs.unlink(path + filename, (err) =>{if (err) throw(err);});
+    }
+}
+
 exports.deletePetition = async function (req, res) {
     try {
         const petition_id = req.params.petition_id;
@@ -151,6 +160,7 @@ exports.deletePetition = async function (req, res) {
         if (req_auth_token === undefined) throw('Unauthorized');
         const author_id = (await Petition.getAuthorID(petition_id))[0].author_id;
         if(!(await Auth.authenticate(req_auth_token, author_id))) throw("Forbidden");
+        await deletePetitionPhoto(petition_id);
         await Petition.deletePetition(petition_id);
         res.status(200)
             .send("OK");

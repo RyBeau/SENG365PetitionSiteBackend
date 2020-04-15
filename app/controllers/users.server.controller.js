@@ -215,7 +215,7 @@ exports.addPhoto =  async function (req, res) {
 exports.deletePhoto = async function (req, res) {
     try {
         const user_id  = await photoChecks(req);
-        const path = process.cwd() + "/storage/photos/"
+        const path = process.cwd() + "/storage/photos/";
         const filename = (await User.getPhoto(user_id))[0].photo_filename;
         if (filename != null){
             await fs.unlink(path + filename, (err) =>{if (err) throw(err);});
