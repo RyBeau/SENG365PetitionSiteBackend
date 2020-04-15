@@ -6,11 +6,8 @@ const fs = require('fs');
 const cryptoRandomString = require("crypto-random-string");
 
 async function checkEmail(email){
-    let result = false;
-    if (email.includes("@") && await User.checkEmail(email)){
-        result = true;
-    }
-    return result;
+    let regex = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return regex.test(email);
 }
 
 exports.register = async function (req, res) {
@@ -18,7 +15,7 @@ exports.register = async function (req, res) {
         const name = req.body.name;
         const email = req.body.email;
         let password = req.body.password;
-        if (password != null && await checkEmail(email) && name != null) {
+        if (password != undefined && password.length > 0  && await checkEmail(email) && name != undefined && name.length > 0) {
             password = await Password.hash(password);
             const result = await User.insert(name, email, password, req.body.city, req.body.country);
             res.status(201)
