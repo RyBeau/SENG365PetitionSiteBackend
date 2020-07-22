@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors')
 const { allowCrossOriginRequestsMiddleware } = require('../app/middleware/cors.middleware');
 
 
@@ -14,6 +15,7 @@ module.exports = function () {
     app.use(bodyParser.raw({ type: 'text/plain', limit: '50mb' }));  // for the /executeSql endpoint
     app.use(bodyParser.raw({ type: 'image/*', limit: '50mb' }));
 
+    app.use(cors());
 
     // DEBUG (you can remove these)
     app.use((req, res, next) => {
